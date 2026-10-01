@@ -14,7 +14,7 @@ mentioned in it. Every stored score records which scorer produced it.
 Model: ``ltg/norbert3-base_sentence-sentiment`` (Language Technology Group, University of Oslo;
 CC-BY-4.0), fine-tuned on the sentence-level NoReC "mixed" subset. Its model card reports a weighted F1
 of 0.764 on that dataset's own test data (Negative 0.58, Positive 0.78, Neutral 0.83, Mixed 0.65).
-ListenSignal's own run on that test split measured 0.749 for NorBERT3 and 0.496 for the lexicon fallback
+ListenSignal's own run on that test split measured 0.749 for NorBERT3 and 0.498 for the lexicon fallback
 (docs/sentiment-evaluation.md). Those are review sentences, not news headlines; accuracy on news is unmeasured.
 """
 
@@ -95,6 +95,8 @@ def _read_terms(name: str) -> tuple[frozenset[str], tuple[str, ...]]:
             continue
         if term.endswith("*"):
             prefixes.append(term[:-1])
+        elif term.endswith("!"):  # exact form only, e.g. "ros!" so that "rosa" (pink) does not count
+            exact.add(term[:-1])
         else:
             exact.update(term + suffix for suffix in _INFLECTIONS)
     return frozenset(exact), tuple(sorted(prefixes, key=len, reverse=True))

@@ -38,7 +38,7 @@ st.write(
     "requires `trust_remote_code=True`. Its model card reports a weighted F1 of 0.764 on the sentence-level NoReC "
     "test data; ListenSignal's own run on that split (1 Oct 2026) measured 0.749. Without the extra, a transparent "
     "word-list scorer (`lexicon-v1`, Bokmål and Nynorsk, simple negation) is used; it measured a weighted F1 of "
-    "0.496 on the same split (always guessing Neutral scores 0.301) and finds only about one in ten negative "
+    "0.498 on the same split (always guessing Neutral scores 0.301) and finds only about one in ten negative "
     "sentences. Those are review sentences: ListenSignal has **not** measured accuracy on news headlines, where "
     "NorBERT3 labels most items Neutral. Details: `docs/sentiment-evaluation.md`."
 )

@@ -93,3 +93,21 @@ def test_norbert3_scores_clear_cases_locally():
     results = scorer.score(["Fjellbrus lanserer en fantastisk ny smak.", "Prisen er ikke god."])
     assert [r.label for r in results] == ["Positive", "Negative"]
     assert all(r.scorer.startswith("norbert3@") and 0 < r.confidence <= 1 for r in results)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Fjellbrus og Kystkraft kjemper om hylleplassen",  # hylle = shelf, not "hylle" = to praise
+        "Den rosa boksen kommer i butikkene",             # rosa = pink, not ros = praise
+        "Faren hans driver butikken",                     # faren = the father, not fare = danger
+        "Godset ble levert i Bergen",                     # gods = goods, not god = good
+    ],
+)
+def test_ambiguous_news_words_are_not_scored(text):
+    assert LexiconScorer().score([text])[0].label == "Neutral"
+
+
+def test_exact_entries_still_match_their_own_form():
+    assert LexiconScorer().score(["Hun får ros for smaken"])[0].label == "Positive"
+    assert LexiconScorer().score(["Fare for ras i Bergen"])[0].label == "Negative"

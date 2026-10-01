@@ -23,7 +23,7 @@ indicator with known limits, not as a measured truth about news coverage.
 | Scorer | Accuracy | Macro F1 | Weighted F1 | F1 Positive | F1 Negative | F1 Neutral | F1 Mixed |
 |---|---|---|---|---|---|---|---|
 | NorBERT3 (`norbert3@a6f5633`, transformers 4.57.6, CPU) | 0.754 | 0.687 | **0.749** | 0.768 | 0.547 | 0.817 | 0.615 |
-| Lexicon fallback (`lexicon-v1`) | 0.551 | 0.355 | **0.496** | 0.445 | 0.159 | 0.688 | 0.128 |
+| Lexicon fallback (`lexicon-v1`) | 0.553 | 0.356 | **0.498** | 0.448 | 0.159 | 0.690 | 0.128 |
 | Baseline: always "Neutral" | 0.470 | 0.160 | 0.301 | 0 | 0 | 0.640 | 0 |
 
 The model card reports a weighted F1 of 0.764 on the same split; ListenSignal's integration (pinned revision,
@@ -40,13 +40,17 @@ dashboard working without the optional extra, not to report tone.
 2. It scored weighted F1 0.459 on the **validation** split.
 3. Around 80 general evaluative words (e.g. *kjedelig, dessverre, nydelig, herlig*) were added, again from
    language knowledge, not by mining the data. Validation weighted F1 rose to 0.507.
-4. The test split was then scored **once** for the table above. (An earlier test-split run of the first lexicon
-   gave 0.434; no change was made in response to it.)
+4. The test split was then scored once (0.496). An earlier test-split run of the first lexicon gave 0.434; no change
+   was made in response to either test result.
+5. Later, a few entries were found to match unrelated words in news text: `hyll*` (to praise) also matched
+   *hylleplass* (shelf space), and automatic inflection turned `ros` into *rosa* (pink), `god` into *gods* (goods)
+   and `fare` into *faren* (the father). These were made exact-match (`ros!`, `god!`, `fare!` …). Validation
+   weighted F1: 0.510. The test split was scored again for the table above (0.498).
 
 ## Scorer agreement on real headlines (not accuracy)
 
 On 215 headlines collected from six live feeds on 1 October 2026 (VG, E24, Aftenposten, Nettavisen, Kampanje,
-Teknisk Ukeblad), with headline + snippet scored as an item:
+Teknisk Ukeblad), with headline + snippet scored as an item (lexicon as of step 4 above):
 
 | NorBERT3 \ lexicon | Negative | Neutral | Positive | Total |
 |---|---|---|---|---|

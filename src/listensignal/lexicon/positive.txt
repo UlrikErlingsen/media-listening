@@ -1,6 +1,7 @@
 # ListenSignal fallback lexicon: positive words (Bokmål and Nynorsk). Original list, written for this project.
 # One entry per line. A plain entry also matches common inflections (-e, -t, -en, -et, -er, -a, -ar, -ene, -ane, -s).
-# An entry ending in * matches any word starting with it. Lines starting with # are comments.
+# An entry ending in * matches any word starting with it; an entry ending in ! matches that exact word only.
+# Lines starting with # are comments.
 anbefal*
 attraktiv
 bedre
@@ -26,11 +27,13 @@ glede
 gledar
 gleder
 glimrende
-god
+god!
 godt
 gode
 gladnyhet*
-hyll*
+hyllest
+hyllet!
+hylles!
 imponer*
 innovativ*
 inspirer*
@@ -61,9 +64,10 @@ rekordoverskudd
 rekordsalg
 rekordsal
 rekordår
-ros
-rost
-roser
+ros!
+rost!
+roser!
+roste!
 seier*
 smart
 solid
