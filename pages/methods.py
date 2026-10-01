@@ -36,10 +36,11 @@ st.write(
     f"With the optional `[sentiment]` extra, ListenSignal runs `{MODEL_ID}` (University of Oslo, Language "
     f"Technology Group; CC-BY-4.0) locally on CPU, pinned to revision `{MODEL_REVISION[:7]}` because the model "
     "requires `trust_remote_code=True`. Its model card reports a weighted F1 of 0.764 on the sentence-level NoReC "
-    "test data (Negative 0.58, Positive 0.78, Neutral 0.83, Mixed 0.65). Those are review sentences; ListenSignal "
-    "has **not** measured accuracy on news headlines, and news tends to be labelled Neutral more often. Without the "
-    "extra, a transparent word-list scorer (`lexicon-v1`, Bokmål and Nynorsk, simple negation) is used instead. It "
-    "has no accuracy figure either and misses irony, context and most phrasing."
+    "test data; ListenSignal's own run on that split (1 Oct 2026) measured 0.749. Without the extra, a transparent "
+    "word-list scorer (`lexicon-v1`, Bokmål and Nynorsk, simple negation) is used; it measured a weighted F1 of "
+    "0.496 on the same split (always guessing Neutral scores 0.301) and finds only about one in ten negative "
+    "sentences. Those are review sentences: ListenSignal has **not** measured accuracy on news headlines, where "
+    "NorBERT3 labels most items Neutral. Details: `docs/sentiment-evaluation.md`."
 )
 st.write(
     "Both scorers label each sentence and combine them: Mixed if any sentence is Mixed or both Positive and Negative "
