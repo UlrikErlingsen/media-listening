@@ -10,6 +10,7 @@ import traceback
 
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.io as pio
 import streamlit as st
 
 from listensignal import (
@@ -146,9 +147,19 @@ def empty_state(v: View) -> bool:
 
 
 def style(fig: go.Figure, height: int = 360, *, legend: bool = True) -> go.Figure:
-    """Chart layout on top of Listen Signal's Plotly template (Figtree, Market-family colorway)."""
+    """Chart layout on top of Listen Signal's Plotly template (Figtree, Market-family colorway).
+
+    Streamlit's front end fills in its own font and background colours for any layout key a figure leaves unset,
+    even with theme=None, so the template's font and transparent backgrounds are copied onto the figure itself.
+    Axis automargin keeps tick labels inside the small margins.
+    """
+    base = pio.templates[sig.template(NS)].layout
     fig.update_layout(
         template=sig.template(NS),
+        font=base.font,
+        paper_bgcolor=base.paper_bgcolor,
+        plot_bgcolor=base.plot_bgcolor,
+        hoverlabel=base.hoverlabel,
         height=height,
         margin=dict(l=8, r=8, t=52 if legend else 12, b=8),
         legend=dict(orientation="h", yanchor="bottom", y=1.04, xanchor="left", x=0, title=None, traceorder="normal")
@@ -157,8 +168,8 @@ def style(fig: go.Figure, height: int = 360, *, legend: bool = True) -> go.Figur
         showlegend=legend,
         bargap=0.25,
     )
-    fig.update_xaxes(showgrid=False, ticks="", tickfont_color=MUTED, title_font_color=MUTED)
-    fig.update_yaxes(zeroline=False, ticks="", tickfont_color=MUTED, title_font_color=MUTED)
+    fig.update_xaxes(showgrid=False, ticks="", automargin=True, tickfont_color=MUTED, title_font_color=MUTED)
+    fig.update_yaxes(zeroline=False, ticks="", automargin=True, tickfont_color=MUTED, title_font_color=MUTED)
     return fig
 
 
