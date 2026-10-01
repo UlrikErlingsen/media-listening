@@ -50,55 +50,70 @@ BASE_RATE = {"Fjellbrus": 2.9, "Kystkraft": 2.3, "Nordlys Energi": 1.5}
 TREND = {"Fjellbrus": 0.0, "Kystkraft": -0.25, "Nordlys Energi": 0.9}  # change in daily rate over the 12 weeks
 TONE = {"Fjellbrus": (0.32, 0.53, 0.15), "Kystkraft": (0.22, 0.5, 0.28), "Nordlys Energi": (0.36, 0.5, 0.14)}
 
+EVENTS = ("Matmessa", "Sommerfestivalen", "Bryggedagene", "Fjordløpet", "Kulturnatta", "Mathallen")
+SEASONS = ("i sommer", "i august", "før skolestart", "i høstferien", "denne uka", "i helgen")
+
+# Every headline carries at least one varying slot so the generated headlines are naturally distinct.
 POSITIVE = (
-    ("{brand} lanserer {product} – kundene er begeistret", "Den nye smaken ble lansert i {city} og fikk god mottakelse."),
-    ("{product} kåret til sommerens beste brus", "Juryen roser den friske smaken og den nye flasken."),
-    ("{brand} med rekordsalg i sommer", "Selskapet melder om sterk vekst i dagligvarehandelen."),
-    ("{brand} blir ny sponsor for ungdomsfotball i {city}", "Klubben er glad for avtalen, som gjelder i tre år."),
-    ("Suksess for {brand} på Matmessa i {city}", "Køen var lang hele helgen, og mange ville smake {product}."),
-    ("{brand} kutter plast og får skryt av miljøvernere", "Den nye flasken er laget av resirkulert materiale. Miljøvernerne roser grepet."),
-    ("Prisbelønnet design for {brand}", "Den nye etiketten vant gull i en nordisk designkonkurranse."),
-    ("{brand} styrker satsingen i {city} med nye arbeidsplasser", "Fabrikken skal ansette tjue nye medarbeidere."),
-    ("Testpanel: {product} er en vinner", "Panelet ga toppkarakter for smak og pris."),
-    ("Eg likar den nye {product}", "Lesarane er nøgde med smaken og meiner prisen er god."),
-    ("{brand} får fornøyde kunder med ny pantordning", "Kundene liker at det blir enklere å pante flaskene."),
+    ("{brand} lanserer {product} i {city} – kundene er begeistret", "Den nye smaken fikk god mottakelse."),
+    ("{product} kåret til beste brus på {event}", "Juryen roser den friske smaken og den nye flasken."),
+    ("{brand} med rekordsalg {season}", "Selskapet melder om sterk vekst i dagligvarehandelen, opp {pct} prosent."),
+    ("{brand} blir ny sponsor for ungdomsfotball i {city}", "Klubben er glad for avtalen, som gjelder i {n} år."),
+    ("Suksess for {brand} på {event} i {city}", "Køen var lang hele helgen, og mange ville smake {product}."),
+    ("{brand} kutter plast og får ros fra miljøvernere i {city}", "Den nye flasken er laget av resirkulert materiale."),
+    ("Prisbelønnet design for {product}", "Den nye etiketten vant gull i en nordisk designkonkurranse."),
+    ("{brand} styrker satsingen i {city} med {n0} nye arbeidsplasser", "Fabrikken skal ansette nye medarbeidere."),
+    ("Testpanel i {city}: {product} er en vinner", "Panelet ga toppkarakter for smak og pris."),
+    ("Eg likar den nye {product}", "Lesarane i {city} er nøgde med smaken og meiner prisen er god."),
+    ("{brand} får fornøyde kunder med ny pantordning i {city}", "Kundene liker at det blir enklere å pante flaskene."),
+    ("{product} blir populær blant turister {season}", "Butikkene i {city} melder om solid salg."),
+    ("Kokker i {city} anbefaler {product} til sommermaten", "Smaken passer godt til grillmat, mener de."),
 )
 NEUTRAL = (
     ("{brand} åpner nytt lager i {city}", "Lageret skal stå klart i løpet av høsten."),
-    ("{brand} legger fram halvårstall", "Omsetningen endte på nivå med samme periode i fjor."),
-    ("Ny daglig leder i {brand}", "Styret har ansatt en tidligere innkjøpssjef fra dagligvarebransjen."),
+    ("{brand} legger fram tall for {quarter}", "Omsetningen endte på nivå med samme periode i fjor."),
+    ("Ny daglig leder i {brand} kommer fra {city}", "Styret har ansatt en tidligere innkjøpssjef fra dagligvarebransjen."),
     ("{brand} endrer etiketten på {product}", "Endringen skal gjøre ingrediensene lettere å lese."),
-    ("Slik lages {product}", "Vi besøkte produksjonslinjen i {city} en vanlig tirsdag."),
-    ("{brand} vurderer eksport til Sverige", "Selskapet bekrefter at det har hatt samtaler med svenske kjeder."),
-    ("{brand} flytter hovedkontoret til {city}", "Flyttingen skjer etter planen i januar."),
-    ("Spørsmål til {brand} om sukkerinnhold", "Forbrukerorganisasjoner ber produsentene oppgi sukker per flaske."),
-    ("{brand} deltar på bransjemøte om emballasje", "Møtet samler produsenter av drikkevarer fra hele landet."),
-    ("{brand} opnar ny avdeling i {city}", "Avdelinga skal ha ti tilsette frå nyttår."),
-    ("Debatt i forumet: hvor kjøper du {product}?", "Tråden har fått over hundre svar fra lesere i hele landet."),
-    ("{brand} og {other} kjemper om hylleplassen", "Dagligvarekjedene reforhandler avtalene med drikkeprodusentene."),
+    ("Slik lages {product} i {city}", "Vi besøkte produksjonslinjen en vanlig tirsdag."),
+    ("{brand} vurderer eksport til {country}", "Selskapet bekrefter at det har hatt samtaler med utenlandske kjeder."),
+    ("{brand} flytter administrasjonen til {city}", "Flyttingen skjer etter planen i januar."),
+    ("Spørsmål til {brand} om sukkerinnhold i {product}", "Forbrukerorganisasjoner ber produsentene oppgi sukker per flaske."),
+    ("{brand} deltar på bransjemøte om emballasje i {city}", "Møtet samler produsenter av drikkevarer fra hele landet."),
+    ("{brand} opnar ny avdeling i {city}", "Avdelinga skal ha {n0} tilsette frå nyttår."),
+    ("Debatt i forumet: hvor kjøper du {product} i {city}?", "Tråden har fått over hundre svar fra lesere i hele landet."),
+    ("{brand} og {other} kjemper om hylleplassen {season}", "Dagligvarekjedene reforhandler avtalene med drikkeprodusentene."),
+    ("{product} kommer i ny boksstørrelse", "Den nye boksen rommer {ml} milliliter og kommer i butikkene i {city} først."),
+    ("{brand} til stede på {event} i {city}", "Selskapet deler ut smaksprøver gjennom helgen."),
 )
 NEGATIVE = (
-    ("Kunder klager på smaken av {product}", "Flere skriver i sosiale medier at de er skuffet."),
-    ("{brand} kritiseres for høyt sukkerinnhold", "Ernæringseksperter mener selskapet markedsfører mot barn."),
-    ("Prissjokk: {product} blir dyrere", "Kundene reagerer på prishoppet i butikkene."),
-    ("{brand} med svakt resultat og nedgang i salget", "Selskapet taper markedsandeler for tredje kvartal på rad."),
+    ("Kunder i {city} klager på smaken av {product}", "Flere skriver i sosiale medier at de er skuffet."),
+    ("{brand} kritiseres for høyt sukkerinnhold i {product}", "Ernæringseksperter mener selskapet markedsfører mot barn."),
+    ("Prissjokk: {product} blir {pct} prosent dyrere", "Kundene reagerer på prishoppet i butikkene."),
+    ("{brand} med svakt resultat og nedgang i salget i {quarter}", "Selskapet taper markedsandeler for tredje kvartal på rad."),
     ("Forsinket levering av {product} til butikkene i {city}", "Hyllene står tomme etter problemer på lageret."),
-    ("{brand} refses av tilsynsmyndighetene for reklame", "Tilsynet mener reklamen er villedende og uakseptabel."),
+    ("{brand} refses av tilsynsmyndighetene for reklame {season}", "Tilsynet mener reklamen er villedende og uakseptabel."),
     ("Streik ved fabrikken til {brand} i {city}", "De ansatte protesterer mot kutt i bemanningen."),
-    ("Leser: {product} er dårleg og for dyr", "Innlegget har fått mange svar frå misnøgde kundar."),
+    ("Leser i {city}: {product} er dårleg og for dyr", "Innlegget har fått mange svar frå misnøgde kundar."),
+    ("Kaos i køen da {brand} delte ut smaksprøver på {event}", "Arrangøren beklager og lover bedre kontroll neste år."),
+    ("{brand} taper anbudet om drikke til skolene i {city}", "Kommunen valgte {other} etter en ny vurdering."),
 )
 RECALL = (
     ("{brand} tilbakekaller {product} etter funn av glassbiter", "Tilsynsmyndigheten advarer kunder mot å drikke fra de berørte flaskene."),
     ("Myndighetene: Ikke drikk {product}", "Produsenten {brand} tilbakekaller flere tusen flasker etter feil i produksjonen."),
-    ("Kunder raser etter tilbakekallingen hos {brand}", "Mange klager på dårlig informasjon fra selskapet."),
-    ("{brand} beklager etter tilbakekalling", "Selskapet beklager og lover å refundere alle berørte kunder."),
+    ("Kunder i {city} raser etter tilbakekallingen hos {brand}", "Mange klager på dårlig informasjon fra selskapet."),
+    ("{brand} beklager etter tilbakekalling av {product}", "Selskapet beklager og lover å refundere alle berørte kunder."),
     ("Tilbakekallingen kan koste {brand} dyrt", "Ekspertene frykter at skandalen skader merkevaren over tid."),
     ("Butikker i {city} fjerner {product} fra hyllene", "Tilbakekallingen gjelder flasker med best før-dato i mars."),
+    ("Slik får du pengene tilbake for {product}", "Kundene i {city} kan levere flaskene i butikken uten kvittering."),
+    ("{n0} butikker i {city} har ryddet hyllene for {product}", "Tilbakekallingen hos {brand} rammer hele landsdelen."),
+    ("Ekspert: {brand} håndterte tilbakekallingen dårlig", "Selskapet ventet for lenge med å varsle kundene, mener hun."),
+    ("Konkurrenten {other} får økt salg etter tilbakekallingen hos {brand}", "Butikkene i {city} melder om tomme hyller."),
 )
 DECOYS = (
     ("Sterkt nordlys over {city} i natt", "Fotografer fikk spektakulære bilder av nordlyset."),
-    ("Nordlysvarsel: Godt håp for helgen", "Meteorologene venter klar himmel i nord."),
-    ("Turistene strømmer til for å se nordlyset", "Hotellene i {city} melder om fullt belegg."),
+    ("Nordlysvarsel for {city}: klar himmel {season}", "Meteorologene venter gode forhold i nord."),
+    ("Turistene strømmer til {city} for å se nordlyset", "Hotellene melder om fullt belegg."),
+    ("Slik fotograferer du nordlyset {season}", "Fotografen i {city} deler sine beste tips."),
 )
 
 
@@ -128,6 +143,14 @@ def _item(rng: random.Random, day: date, index: int, brand: str, template: tuple
         "other": rng.choice(others),
         "product": rng.choice(PRODUCTS.get(brand, ("brusen",))),
         "city": rng.choice(CITIES),
+        "event": rng.choice(EVENTS),
+        "season": rng.choice(SEASONS),
+        "quarter": rng.choice(("første halvår", "andre kvartal", "tredje kvartal", "sommermånedene")),
+        "country": rng.choice(("Sverige", "Danmark", "Finland", "Island", "Tyskland")),
+        "n": rng.randint(2, 5),
+        "n0": rng.choice(("ti", "tolv", "femten", "tjue", "tretti", "førti")),
+        "pct": rng.randint(4, 28),
+        "ml": rng.choice((250, 330, 500)),
     }
     title, summary = (part.format(**fill) for part in template)
     title = title[0].upper() + title[1:]
@@ -150,6 +173,17 @@ def _unique_title(item: dict, seen: set[str]) -> None:
     seen.add(item["title"])
 
 
+def _draw(rng: random.Random, day: date, index: int, brand: str, pool, seen: set[str], tries: int = 12) -> dict:
+    """Draw template + fill until the headline is new; fall back to an update time stamp only if that fails."""
+    for _ in range(tries):
+        candidate = _item(rng, day, index, brand, rng.choice(pool))
+        if candidate["title"] not in seen:
+            seen.add(candidate["title"])
+            return candidate
+    _unique_title(candidate, seen)
+    return candidate
+
+
 def make_demo_articles(seed: int = DEMO_SEED) -> pd.DataFrame:
     """About 600 fictional feed items over 12 weeks, scored with the lexicon fallback (deterministic offline)."""
     rng = random.Random(seed)
@@ -165,18 +199,15 @@ def make_demo_articles(seed: int = DEMO_SEED) -> pd.DataFrame:
             for _ in range(count):
                 tone = _weighted(rng, ("pos", "neu", "neg"), TONE[brand])
                 pool = {"pos": POSITIVE, "neu": NEUTRAL, "neg": NEGATIVE}[tone]
-                candidate = _item(rng, day, index, brand, rng.choice(pool))
-                _unique_title(candidate, seen_titles)
+                candidate = _draw(rng, day, index, brand, pool, seen_titles)
                 items.append(candidate)
                 index += 1
         for _ in range(SPIKE_DAYS.get(day, 0)):
-            candidate = _item(rng, day, index, "Fjellbrus", rng.choice(RECALL))
-            _unique_title(candidate, seen_titles)
+            candidate = _draw(rng, day, index, "Fjellbrus", RECALL, seen_titles)
             items.append(candidate)
             index += 1
         if rng.random() < 0.3:
-            candidate = _item(rng, day, index, "", rng.choice(DECOYS))
-            _unique_title(candidate, seen_titles)
+            candidate = _draw(rng, day, index, "", DECOYS, seen_titles)
             items.append(candidate)
             index += 1
     frame = pd.DataFrame(items)
