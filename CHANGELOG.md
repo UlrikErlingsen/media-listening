@@ -23,7 +23,7 @@ First version of **ListenSignal**, built from the v1 brief.
 
 - Sentence-level sentiment with local NorBERT3 (`ltg/norbert3-base_sentence-sentiment`, pinned revision, optional
   `[sentiment]` extra, transformers < 5), or a Bokmål/Nynorsk lexicon fallback; every label records its scorer.
-- Measured on the NoReC_sentence test split: NorBERT3 weighted F1 0.749, lexicon 0.496, always-Neutral 0.301.
+- Measured on the NoReC_sentence test split: NorBERT3 weighted F1 0.749, lexicon 0.498, always-Neutral 0.301.
   Accuracy on news headlines is not measured (`docs/sentiment-evaluation.md`).
 - Share of voice, sentiment mix, net tone, top sources, z-score spikes with the rule shown, a week-over-week
   “what changed” panel and rising terms. Days before the first collection are excluded, so collection gaps are
@@ -32,11 +32,19 @@ First version of **ListenSignal**, built from the v1 brief.
 
 ### Dashboard and export
 
+- **Brand profile** page: weekly volume and tone, distinctive terms against competitors, sources, latest positive
+  and negative items; KPI tiles show the change against the previous equally long period (suppressed when that
+  period predates the data).
+- **Edit brands for this session**: visitors can change aliases and exclusions or add a brand in the dashboard;
+  every page re-matches the same items, nothing is written to disk, and the list downloads as `brands.yaml`.
+- `LISTENSIGNAL_PUBLIC_DEMO=1` for hosting: fictional data only, no database, no outbound feed requests.
+- Feed text and user-typed brand names are HTML-escaped wherever the dashboard renders custom HTML.
+
 - Streamlit dashboard (Overview, What changed, Mentions, Topics, Weekly pulse, Sources & brands, Methods &
   limits) on the shared Signal-suite shell, with a matcher tester and a “collect now” button.
 - Weekly brand pulse as a one-page HTML summary and an XLSX workbook, protected against formula injection.
-- Deterministic fictional demo (three invented brands, 581 items over 12 weeks, one engineered spike), loaded by
-  default and usable offline.
+- Deterministic fictional demo (three invented brands, 572 items over 12 weeks, one engineered recall spike with a
+  knock-on competitor spike), with varied headlines, loaded by default and usable offline.
 
 ### Engineering
 

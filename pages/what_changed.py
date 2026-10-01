@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from html import escape
+import re
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -40,7 +42,8 @@ if note:
 notes = change_headlines(change, rule)
 if notes:
     for note in notes:
-        st.markdown(f'<div class="change-note">{note.replace("**", "")}</div>', unsafe_allow_html=True)
+        bold = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", escape(note))  # brand names are user input
+        st.markdown(f'<div class="change-note">{bold}</div>', unsafe_allow_html=True)
 else:
     st.markdown('<div class="boundary">No brand crossed the reporting rules this week.</div>', unsafe_allow_html=True)
 st.caption(

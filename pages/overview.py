@@ -8,7 +8,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from listensignal import daily_counts, detect_spikes, net_tone, sentiment_mix, share_of_voice, top_sources
+from listensignal import daily_counts, detect_spikes, period_comparison, sentiment_mix, share_of_voice, top_sources
 from pages._ui import INK_2, MUTED, SURFACE, data_banner, empty_state, scorer_caption, sentiment_bar, style, view
 
 v = view()
@@ -37,16 +37,29 @@ sov = share_of_voice(v.mentions, v.brands)
 daily = daily_counts(v.ws.mentions, v.brands, v.start - timedelta(days=28), v.end)
 spikes = detect_spikes(daily, coverage_start=v.ws.coverage_start)
 recent_spikes = spikes.loc[spikes["date"] > v.end - timedelta(days=7)]
-focus_tone = net_tone(v.mentions.loc[v.mentions["brand"] == focus])
+compare = period_comparison(v.ws.mentions, v.brands, v.start, v.end, v.ws.coverage_start).set_index("brand")
+row = compare.loc[focus]
+covered = row["mentions_before"] is not None and not pd.isna(row["mentions_before"])
+days = (v.end - v.start).days + 1
+total_before = compare["mentions_before"].sum() if covered else None
 
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("Brand mentions", f"{len(v.mentions):,}", help="An item naming two brands counts once for each.")
-c2.metric(f"{focus} share of voice", f"{float(sov.loc[sov['brand'] == focus, 'share'].iat[0]):.0%}")
+c1.metric("Brand mentions", f"{len(v.mentions):,}",
+          f"{len(v.mentions) - total_before:+,.0f}" if covered else None,
+          help=f"An item naming two brands counts once for each. Delta: vs the {days} days before.")
+c2.metric(f"{focus} share of voice", f"{row['sov']:.0%}",
+          f"{(row['sov'] - row['sov_before']) * 100:+.0f} pts" if covered else None)
+tone_now, tone_before = row["net_tone"], row["net_tone_before"]
 c3.metric(
     f"{focus} net tone",
-    "—" if focus_tone is None else f"{focus_tone:+.2f}",
+    "—" if tone_now is None or pd.isna(tone_now) else f"{tone_now:+.2f}",
+    f"{tone_now - tone_before:+.2f}" if covered and tone_now is not None and tone_before is not None
+    and not pd.isna(tone_now) and not pd.isna(tone_before) else None,
     help="(positive − negative) / scored mentions, from −1 to +1. Headline tone, not tone towards the brand.",
 )
+if not covered:
+    since = f" ({v.ws.coverage_start:%d.%m.%Y})" if v.ws.coverage_start else ""
+    st.caption(f"No change shown: the {days} days before this period fall before the data starts{since}.")
 c4.metric("Spike days, last 7 days", f"{len(recent_spikes)}", help="See What changed for the rule and threshold.")
 
 st.markdown("### Mention volume")

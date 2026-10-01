@@ -162,3 +162,29 @@ def parse_sources(data: dict) -> SourceConfig:
 
 def load_sources(path: Path | str = DEFAULT_SOURCES) -> SourceConfig:
     return parse_sources(_read_yaml(Path(path)))
+
+
+def brands_to_yaml(brands: tuple[Brand, ...] | list[Brand]) -> str:
+    """Serialize brands back to brands.yaml format (round-trips through parse_brands)."""
+    entries = []
+    for brand in brands:
+        entry: dict = {"name": brand.name, "role": brand.role, "aliases": list(brand.aliases)}
+        if brand.exclude:
+            entry["exclude"] = list(brand.exclude)
+        if brand.case_sensitive:
+            entry["case_sensitive"] = True
+        if not brand.inflect:
+            entry["inflect"] = False
+        entries.append(entry)
+    return yaml.safe_dump({"brands": entries}, allow_unicode=True, sort_keys=False, default_flow_style=None, width=110)
+
+
+def parse_brands_yaml(text: str) -> tuple[Brand, ...]:
+    """Parse brands from YAML text (e.g. typed into the dashboard)."""
+    try:
+        data = yaml.safe_load(text) or {}
+    except yaml.YAMLError as exc:
+        raise DataProblem(f"The brand list is not valid YAML: {exc}") from exc
+    if not isinstance(data, dict):
+        raise DataProblem("The brand list must start with 'brands:'.")
+    return parse_brands(data)

@@ -19,6 +19,7 @@ from listensignal import (
     database_workspace,
     demo_workspace,
     friendly_message,
+    parse_brands_yaml,
 )
 from listensignal.analysis import SENTIMENT_ORDER
 from listensignal.config import DEFAULT_BRANDS, DEFAULT_DB
@@ -32,6 +33,8 @@ SENTIMENT_COLORS = {"Positive": "#2a78d6", "Neutral": "#c3c2b7", "Mixed": "#eda1
                     "Unscored": "#e1e0d9"}
 INK, INK_2, MUTED, GRID, AXIS, SURFACE = "#17322e", "#52514e", "#898781", "#e1e0d9", "#c3c2b7", "#fcfcfb"
 PERIODS = {"Last 4 weeks": 28, "Last 12 weeks": 84, "All data": None}
+# Hosted demo: only the fictional data, no database and no outbound feed requests.
+PUBLIC_DEMO = os.getenv("LISTENSIGNAL_PUBLIC_DEMO") == "1"
 
 
 @st.cache_data(show_spinner="Building the fictional demo …")
@@ -40,7 +43,7 @@ def _demo() -> Workspace:
 
 
 @st.cache_data(show_spinner="Reading the local database …")
-def _database(db_path: str, brands_path: str, _db_mtime: float, _brands_mtime: float) -> Workspace:
+def _database(db_path: str, brands_path: str, db_mtime: float, brands_mtime: float) -> Workspace:
     return database_workspace(db_path, brands_path)
 
 
@@ -52,10 +55,31 @@ def db_count() -> int:
     return database_has_items(DEFAULT_DB)
 
 
-def workspace() -> Workspace:
+@st.cache_data(show_spinner="Matching your brands …", max_entries=8)
+def _custom(mode: str, base_mtime: float, _base: Workspace, brands_yaml: str) -> Workspace:
+    return _base.with_brands(parse_brands_yaml(brands_yaml))
+
+
+def base_workspace() -> Workspace:
     if st.session_state.get("data_mode", "demo") == "db":
         return _database(str(DEFAULT_DB), str(DEFAULT_BRANDS), _mtime(DEFAULT_DB), _mtime(DEFAULT_BRANDS))
     return _demo()
+
+
+def custom_brands_key() -> str:
+    return f"custom_brands_{st.session_state.get('data_mode', 'demo')}"
+
+
+def workspace() -> Workspace:
+    """The selected data, re-matched with this session's custom brand list if the visitor set one."""
+    if PUBLIC_DEMO:
+        st.session_state["data_mode"] = "demo"
+    base = base_workspace()
+    custom = st.session_state.get(custom_brands_key())
+    if not custom:
+        return base
+    mode = st.session_state.get("data_mode", "demo")
+    return _custom(mode, _mtime(DEFAULT_DB) if mode == "db" else 0.0, base, custom)
 
 
 def clear_caches() -> None:
@@ -101,6 +125,8 @@ def header(kicker: str, title: str, subtitle: str) -> None:
 def data_banner(v: View) -> None:
     if v.ws.is_demo:
         st.markdown(f'<div class="warning-box"><strong>Fictional demo.</strong> {v.ws.notice}</div>', unsafe_allow_html=True)
+    if st.session_state.get(custom_brands_key()):
+        st.caption("Custom brand list active for this session (Sources & brands → Edit brands).")
     st.caption(f"{v.ws.label} · {v.start:%d.%m.%Y} – {v.end:%d.%m.%Y} · {len(v.mentions):,} brand mentions")
 
 

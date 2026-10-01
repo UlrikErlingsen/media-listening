@@ -28,10 +28,13 @@ USER_AGENT = (
 _EXPORTS = {
     "analysis": (
         "SpikeRule", "WeekWindow", "change_headlines", "coverage_note", "daily_counts", "detect_spikes", "mention_table",
-        "net_tone",
-        "sentiment_mix", "share_of_voice", "spike_scores", "top_sources", "weekly_change",
+        "net_tone", "period_comparison", "sentiment_mix", "share_of_voice", "spike_scores", "top_sources",
+        "weekly_change", "weekly_tone",
     ),
-    "config": ("Brand", "Source", "load_brands", "load_sources", "parse_brands", "parse_sources"),
+    "config": (
+        "Brand", "Source", "brands_to_yaml", "load_brands", "load_sources", "parse_brands", "parse_brands_yaml",
+        "parse_sources",
+    ),
     "errors": ("DataProblem", "friendly_message"),
     "matching": ("find_matches", "match_brands", "mentions_brand"),
     "pulse": ("PulseReport", "build_pulse", "pulse_html", "pulse_xlsx"),
@@ -55,11 +58,4 @@ def __getattr__(name: str):
     return value
 
 
-__all__ = [
-    "Brand", "DataProblem", "LexiconScorer", "PulseReport", "Source", "SpikeRule", "USER_AGENT", "WeekWindow",
-    "Workspace", "__version__", "build_pulse", "change_headlines", "cluster_topics", "coverage_note", "collect_run", "daily_counts",
-    "database_has_items", "database_workspace", "demo_workspace", "detect_spikes", "find_matches", "friendly_message",
-    "get_scorer", "load_brands", "load_sources", "match_brands", "mention_table", "mentions_brand", "net_tone",
-    "norbert_available", "parse_brands", "parse_sources", "pulse_html", "pulse_xlsx", "rising_terms",
-    "sentiment_mix", "share_of_voice", "spike_scores", "top_sources", "weekly_change",
-]
+__all__ = sorted(["USER_AGENT", "__version__", "collect_run", *(name for names in _EXPORTS.values() for name in names)])

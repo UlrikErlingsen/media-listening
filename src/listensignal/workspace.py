@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
 from pathlib import Path
 
@@ -10,7 +10,7 @@ import pandas as pd
 
 from .analysis import TIMEZONE, mention_table
 from .config import DEFAULT_BRANDS, DEFAULT_DB, Brand, load_brands
-from .demo import DEMO_BRANDS, DEMO_NOTICE, make_demo_articles
+from .demo import DEMO_BRANDS, DEMO_NOTICE, DEMO_START, make_demo_articles
 from .storage import connect, count_articles, load_articles, load_fetch_log
 
 
@@ -23,11 +23,16 @@ class Workspace:
     mentions: pd.DataFrame
     fetch_log: pd.DataFrame
     notice: str = ""
-    coverage_start: date | None = None  # first collection day; None = complete coverage (demo)
+    coverage_start: date | None = None  # first day with complete coverage; None = unknown/complete
 
     @property
     def brand_names(self) -> list[str]:
         return [brand.name for brand in self.brands]
+
+    def with_brands(self, brands: tuple[Brand, ...]) -> "Workspace":
+        """The same feed items re-matched against a different brand list."""
+        return replace(self, brands=tuple(brands), mentions=mention_table(self.articles, brands),
+                       label=self.label + " · custom brands")
 
 
 def demo_workspace() -> Workspace:
@@ -40,6 +45,7 @@ def demo_workspace() -> Workspace:
         mentions=mention_table(articles, DEMO_BRANDS),
         fetch_log=pd.DataFrame(),
         notice=DEMO_NOTICE,
+        coverage_start=DEMO_START,  # nothing exists before the demo starts; comparisons must not reach back
     )
 
 

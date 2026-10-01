@@ -7,7 +7,7 @@ from listensignal.config import load_brands, load_sources
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = str(ROOT / "app.py")
-PAGES = ["overview", "what_changed", "mentions", "topics", "pulse", "sources", "methods"]
+PAGES = ["overview", "what_changed", "brand", "mentions", "topics", "pulse", "sources", "methods"]
 
 
 def test_seeded_sources_are_verified_and_at_least_five_enabled():
@@ -60,7 +60,7 @@ def test_what_changed_shows_rule_and_spike():
     app = _run("what_changed")
     body = "\n".join(str(m.value) for m in app.markdown)
     assert "z-score is at least 3" in body
-    assert "Fjellbrus: spike on 22.09" in body
+    assert "<strong>Fjellbrus</strong>: spike on 22.09" in body
 
 
 def test_app_source_keeps_suite_shell_and_accessibility():
@@ -89,3 +89,21 @@ def test_readme_follows_suite_structure_and_states_limits():
         assert (ROOT / name).exists()
     for image in ["screenshot-overview-charts.png", "screenshot-spikes.png"]:
         assert (ROOT / "assets" / image).exists() and f"assets/{image}" in readme
+
+
+def test_public_demo_mode_hides_collection(monkeypatch):
+    monkeypatch.setenv("LISTENSIGNAL_PUBLIC_DEMO", "1")
+    import importlib
+
+    import pages._ui as ui
+
+    importlib.reload(ui)
+    try:
+        app = _run("sources")
+        assert not app.exception, [e.value for e in app.exception]
+        assert not app.sidebar.radio  # no data-source switch
+        assert not [b for b in app.button if b.label == "Fetch enabled feeds"]
+        assert any("switched off in this public demo" in str(i.value) for i in app.info)
+    finally:
+        monkeypatch.delenv("LISTENSIGNAL_PUBLIC_DEMO")
+        importlib.reload(ui)

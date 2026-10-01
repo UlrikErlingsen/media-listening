@@ -85,7 +85,8 @@ def test_html_escapes_feed_text():
     articles = ws.articles.copy()
     last = articles.index[-1]
     articles.loc[last, "title"] = "<script>alert(1)</script> Fjellbrus"
-    articles.loc[last, "published"] = pd.Timestamp(DEMO_END + timedelta(hours=1)).tz_localize("UTC")
+    # newest item of the final demo day, so it is listed among the latest mentions
+    articles.loc[last, "published"] = pd.Timestamp(DEMO_END).tz_localize("Europe/Oslo") + timedelta(hours=23, minutes=59)
     poisoned = type(ws)(ws.label, ws.is_demo, ws.brands, articles, mention_table(articles, ws.brands), ws.fetch_log, ws.notice)
     html = pulse_html(build_pulse(poisoned, DEMO_END))
     assert "<script>alert(1)</script>" not in html and "&lt;script&gt;" in html

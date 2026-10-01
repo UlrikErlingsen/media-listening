@@ -7,15 +7,15 @@ from io import StringIO
 import pandas as pd
 import streamlit as st
 
-from listensignal import collect_run, find_matches, load_sources, norbert_available
+from listensignal import DataProblem, brands_to_yaml, collect_run, find_matches, load_sources, norbert_available, parse_brands_yaml
 from listensignal.config import DEFAULT_BRANDS, DEFAULT_SOURCES
-from pages._ui import clear_caches, header, show_error, workspace
+from pages._ui import PUBLIC_DEMO, base_workspace, clear_caches, custom_brands_key, header, show_error, workspace
 
 header(
     "Configuration",
     "Sources & brands",
-    "What ListenSignal listens to and how it recognises each brand. Edit <code>brands.yaml</code> and "
-    "<code>sources.yaml</code> in the project folder; this page reads them on every visit.",
+    "What ListenSignal listens to and how it recognises each brand. Try your own brand list below for this "
+    "session, or edit <code>brands.yaml</code> and <code>sources.yaml</code> in the project folder.",
 )
 ws = workspace()
 
@@ -33,6 +33,34 @@ st.dataframe(
 )
 if len(ws.brands) > 8:
     st.warning("More than eight brands: brands after the eighth share one gray chart colour. Consider fewer brands.")
+
+with st.expander("Edit brands for this session", expanded=bool(st.session_state.get(custom_brands_key()))):
+    st.caption(
+        "Change aliases or exclusions, or add your own brand, and apply: every page re-matches the same feed items. "
+        "Nothing is written to disk. Download the result as brands.yaml to keep it."
+    )
+    key = custom_brands_key()
+    text = st.text_area(
+        "Brand list (YAML)",
+        value=st.session_state.get(key) or brands_to_yaml(base_workspace().brands),
+        height=260,
+        key=f"{key}_editor",
+    )
+    c1, c2, c3 = st.columns(3)
+    if c1.button("Apply for this session", type="primary", width="stretch"):
+        try:
+            brands = parse_brands_yaml(text)
+            if len(brands) > 12:
+                raise DataProblem("Use at most 12 brands so charts stay readable.")
+            st.session_state[key] = brands_to_yaml(brands)
+            st.rerun()
+        except DataProblem as exc:
+            show_error(exc)
+    if c2.button("Reset to original brands", width="stretch", disabled=not st.session_state.get(key)):
+        st.session_state.pop(key, None)
+        st.session_state.pop(f"{key}_editor", None)
+        st.rerun()
+    c3.download_button("Download as brands.yaml", text.encode("utf-8"), "brands.yaml", "text/yaml", width="stretch")
 
 st.markdown("#### Test the matcher")
 sample = st.text_area(
@@ -76,7 +104,9 @@ st.markdown("### Collect now")
 available, why = norbert_available()
 st.caption(("Sentiment: NorBERT3 will be used if its model is in the local cache. " if available else "Sentiment: ")
            + ("" if available else why + " The lexicon fallback will be used."))
-if st.button("Fetch enabled feeds", type="primary", disabled=config is None):
+if PUBLIC_DEMO:
+    st.info("Collection is switched off in this public demo. Run ListenSignal on your own machine to collect feeds.")
+elif st.button("Fetch enabled feeds", type="primary", disabled=config is None):
     log = StringIO()
     with st.spinner("Fetching feeds and scoring new items …"):
         try:

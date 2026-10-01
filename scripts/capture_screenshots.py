@@ -19,6 +19,7 @@ PAGES = {
     "overview-charts": ("", "Mention volume"),
     "what-changed": ("what_changed", None),
     "spikes": ("what_changed", "Spike detection"),
+    "brand": ("brand", "Mentions per week"),
     "topics": ("topics", None),
     "pulse": ("pulse", "Preview"),
     "sources": ("sources", "Test the matcher"),

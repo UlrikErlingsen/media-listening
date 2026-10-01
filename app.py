@@ -20,7 +20,7 @@ for path in (SRC, ROOT):
         sys.path.insert(0, str(path))
 
 from listensignal import __version__
-from pages._ui import PERIODS, db_count, show_error, workspace
+from pages._ui import PERIODS, PUBLIC_DEMO, db_count, show_error, workspace
 
 mark_path = ROOT / "assets" / "listensignal-mark.svg"
 MARK_URI = (
@@ -111,6 +111,7 @@ st.markdown(
     .warning-box {border-left:4px solid var(--ps-gold);background:rgba(242,198,109,.17);border-radius:0 14px 14px 0;padding:.8rem 1.1rem;color:#604b1f;margin-bottom:.4rem;}
     .change-note {border-left:4px solid var(--ps-coral);background:rgba(255,255,255,.7);border-radius:0 12px 12px 0;padding:.6rem 1rem;margin:.35rem 0;color:#17322e;}
     .small-note {font-size:.86rem;color:#617670;}
+    .item-list {padding-left:1.1rem;margin:.2rem 0 0;} .item-list li {margin:.35rem 0;line-height:1.45;}
     .ps-footer { margin-top:3.2rem; padding-top:1rem; border-top:1px solid var(--ps-line); color:#617670; font-size:.76rem; text-align:center; }
     .ps-footer span { color:var(--ps-coral); padding:0 .38rem; }
     @media (max-width:760px) { .ps-promise{display:none}.ps-hero{border-radius:20px}.block-container{padding-top:3.5rem} }
@@ -146,6 +147,7 @@ def footer() -> None:
 PAGES = [
     st.Page("pages/overview.py", title="Overview", icon=":material/insights:", default=True),
     st.Page("pages/what_changed.py", title="What changed", icon=":material/trending_up:"),
+    st.Page("pages/brand.py", title="Brand profile", icon=":material/person_search:"),
     st.Page("pages/mentions.py", title="Mentions", icon=":material/article:"),
     st.Page("pages/topics.py", title="Topics", icon=":material/category:"),
     st.Page("pages/pulse.py", title="Weekly pulse", icon=":material/download:"),
@@ -165,9 +167,12 @@ with st.sidebar:
 page = st.navigation(PAGES)
 
 with st.sidebar:
-    stored = db_count()
-    modes = {"demo": "Fictional demo", "db": f"My collected data ({stored:,} items)"}
-    st.radio("Data", list(modes), format_func=modes.get, key="data_mode")
+    if PUBLIC_DEMO:
+        st.caption("Public demo: fictional data only. Run ListenSignal locally to collect real feeds.")
+    else:
+        stored = db_count()
+        modes = {"demo": "Fictional demo", "db": f"My collected data ({stored:,} items)"}
+        st.radio("Data", list(modes), format_func=modes.get, key="data_mode")
     st.selectbox("Period", list(PERIODS), index=1, key="period")
     ws = workspace()
     st.caption(f"{len(ws.brands)} brands · {len(ws.articles):,} feed items · {len(ws.mentions):,} brand mentions")

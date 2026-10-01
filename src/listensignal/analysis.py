@@ -275,3 +275,46 @@ def coverage_note(window: WeekWindow, coverage_start: date | None) -> str | None
         f"still carried, so week-over-week changes and spike baselines need two full collected weeks "
         f"(first complete comparison: week ending {ready:%d.%m.%Y})."
     )
+
+
+def weekly_tone(mentions: pd.DataFrame, brands: list[str], start: date, end: date) -> pd.DataFrame:
+    """Per brand and week (Monday–Sunday): mentions, label counts, net tone. Weeks without mentions have no tone."""
+    first_monday = start - timedelta(days=start.weekday())
+    weeks = pd.date_range(first_monday, end, freq="W-MON").date
+    rows = []
+    scoped = mentions.loc[(mentions["date"] >= first_monday) & (mentions["date"] <= end)] if not mentions.empty else mentions
+    week_of = scoped["date"].map(lambda day: day - timedelta(days=day.weekday())) if not scoped.empty else pd.Series(dtype=object)
+    for brand in brands:
+        for week in weeks:
+            part = scoped.loc[(scoped["brand"] == brand) & (week_of == week)] if not scoped.empty else scoped
+            counts = {label: int((part["sentiment"] == label).sum()) for label in SENTIMENT_ORDER} if len(part) else {
+                label: 0 for label in SENTIMENT_ORDER}
+            rows.append({"brand": brand, "week": week, "mentions": int(len(part)), **counts, "net_tone": net_tone(part)})
+    return pd.DataFrame(rows)
+
+
+def period_comparison(
+    mentions: pd.DataFrame, brands: list[str], start: date, end: date, coverage_start: date | None = None
+) -> pd.DataFrame:
+    """Each brand in [start, end] vs the equally long period just before. Empty 'before' values if not collected."""
+    length = (end - start).days + 1
+    prev_start, prev_end = start - timedelta(days=length), start - timedelta(days=1)
+    covered = coverage_start is None or coverage_start <= prev_start
+    now = _between(mentions, start, end) if not mentions.empty else mentions
+    before = _between(mentions, prev_start, prev_end) if not mentions.empty else mentions
+    rows = []
+    for brand in brands:
+        b_now = now.loc[now["brand"] == brand] if len(now) else now
+        b_before = before.loc[before["brand"] == brand] if len(before) else before
+        rows.append(
+            {
+                "brand": brand,
+                "mentions": len(b_now),
+                "mentions_before": len(b_before) if covered else None,
+                "sov": len(b_now) / len(now) if len(now) else 0.0,
+                "sov_before": (len(b_before) / len(before) if len(before) else 0.0) if covered else None,
+                "net_tone": net_tone(b_now) if len(b_now) else None,
+                "net_tone_before": (net_tone(b_before) if len(b_before) else None) if covered else None,
+            }
+        )
+    return pd.DataFrame(rows)
