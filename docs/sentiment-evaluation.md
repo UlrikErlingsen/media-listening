@@ -1,6 +1,6 @@
 # Sentiment evaluation
 
-Measured on **1 October 2026** with ListenSignal 1.0.0. Reproduce with:
+Measured on **1 October 2026** with Listen Signal 1.0.0. Reproduce with:
 
 ```bash
 python scripts/evaluate_sentiment.py
@@ -26,7 +26,7 @@ indicator with known limits, not as a measured truth about news coverage.
 | Lexicon fallback (`lexicon-v1`) | 0.553 | 0.356 | **0.498** | 0.448 | 0.159 | 0.690 | 0.128 |
 | Baseline: always "Neutral" | 0.470 | 0.160 | 0.301 | 0 | 0 | 0.640 | 0 |
 
-The model card reports a weighted F1 of 0.764 on the same split; ListenSignal's integration (pinned revision,
+The model card reports a weighted F1 of 0.764 on the same split; Listen Signal's integration (pinned revision,
 transformers 4.57.6) measures 0.749. The small gap is most likely library-version or tokenization differences; it
 was not investigated further.
 

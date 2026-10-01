@@ -1,6 +1,6 @@
-# ListenSignal feed sources (RSS/Atom only in v1).
+# Listen Signal feed sources (RSS/Atom only in v1).
 #
-# Every URL below was fetched on 2026-10-01 with ListenSignal's User-Agent, returned a valid feed, and was
+# Every URL below was fetched on 2026-10-01 with Listen Signal's User-Agent, returned a valid feed, and was
 # checked against the site's robots.txt with Python's robotparser.
 #
 # Feeds are seeded `enabled: false` when the publisher's robots.txt disallows them, reserves text and data
@@ -18,7 +18,7 @@ sources:
     url: https://www.vg.no/rss/feed
     enabled: true
     verified: 2026-10-01
-    note: robots.txt allows the feed. VG reserves use of its content for AI-model training; ListenSignal trains nothing.
+    note: robots.txt allows the feed. VG reserves use of its content for AI-model training; Listen Signal trains nothing.
 
   - name: E24
     url: https://e24.no/rss2/

@@ -14,7 +14,7 @@ Report suspected vulnerabilities privately to the repository owner before public
   The NorBERT3 model is downloaded only when you run `python -m listensignal.sentiment --download`; otherwise it
   is loaded with `local_files_only=True`.
 - **Remote code:** NorBERT3 requires `trust_remote_code=True`, which runs Python code shipped with the model.
-  ListenSignal pins the model to one reviewed revision (`a6f56334e237664a30573cf2c4b9f94a28934425`), so a later
+  Listen Signal pins the model to one reviewed revision (`a6f56334e237664a30573cf2c4b9f94a28934425`), so a later
   change to the model repository cannot run on your machine without a code change here.
 - **Feed content is untrusted input.** Feeds are size-capped (5 MB) and time-limited. Markup is stripped from
   snippets. HTML exports escape all feed text, and XLSX exports neutralize spreadsheet formulas (cells starting

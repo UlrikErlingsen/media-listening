@@ -104,20 +104,44 @@ def test_brand_palette_comes_from_the_signal_theme():
     assert ui.SENTIMENT_COLORS["Positive"] in sig.DIVERGING and ui.SENTIMENT_COLORS["Negative"] in sig.DIVERGING
 
 
-def test_readme_follows_suite_structure_and_states_limits():
+def test_readme_follows_signal_template_and_states_limits():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    for heading in [
-        "## Read this first", "## Try the fictional demo in three minutes", "## Sources and brands", "## Methods",
-        "## Weekly brand pulse", "## Run locally", "## Privacy", "## Development checks",
-        "## Relationship to the Signal suite", "## Academic independence and originality", "## License",
-    ]:
-        assert heading in readme, heading
+    # Signal README template order: readers find the same section in the same place in every repo.
+    sections = [
+        "## Read this first", "## Scope", "## Try the demo in three minutes", "## Data contract", "## Methods",
+        "## Exports", "## Run locally", "## Privacy", "## Development", "## Where this fits in Signal",
+        "## References", "## Originality and license",
+    ]
+    positions = [readme.find(f"\n{heading}\n") for heading in sections]
+    assert all(position >= 0 for position in positions), dict(zip(sections, positions))
+    assert positions == sorted(positions)
+    assert readme.startswith('<p align="center">\n  <img src="assets/listensignal-banner.png"')
+    assert "assets/listensignal-banner.svg" not in readme
+    assert "Signal-Market-728157" in readme  # family badge in the Market 600 colour
+    assert "github.com/UlrikErlingsen/media-listening/actions" in readme  # tests badge
+    assert "**Listen Signal**" in readme and '<img src="assets/listensignal-mark-64.png"' in readme  # suite footer
+    assert "Creator Signal" not in readme
     assert "**The demo is fictional.**" in readme
     assert "has not been measured" in readme
+    assert "Treat the name as provisional." in readme
     for name in ["PRIVACY.md", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md"]:
         assert (ROOT / name).exists()
     for image in ["screenshot-overview-charts.png", "screenshot-spikes.png"]:
         assert (ROOT / "assets" / image).exists() and f"assets/{image}" in readme
+    for path in ("listensignal-banner.png", "listensignal-mark-64.png", "listensignal-social.png"):
+        assert (ROOT / "assets" / path).exists()
+    assert not (ROOT / "assets" / "listensignal-banner.svg").exists()
+
+
+def test_issue_templates_use_display_name_and_keep_data_safety():
+    templates = ROOT / ".github" / "ISSUE_TEMPLATE"
+    bug = (templates / "bug_report.yml").read_text(encoding="utf-8")
+    idea = (templates / "feature_request.yml").read_text(encoding="utf-8")
+    config = (templates / "config.yml").read_text(encoding="utf-8")
+    assert "Listen Signal" in bug and "Listen Signal" in idea
+    assert "ListenSignal" not in bug + idea
+    assert "required: true" in bug and "credentials" in bug
+    assert "github.com/UlrikErlingsen/media-listening/blob/main/SECURITY.md" in config
 
 
 def test_public_demo_mode_hides_collection(monkeypatch):

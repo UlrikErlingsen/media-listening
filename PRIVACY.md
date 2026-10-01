@@ -1,6 +1,6 @@
 # Privacy
 
-ListenSignal has no accounts, telemetry, advertising, tracking pixels or external AI calls. Nothing is uploaded
+Listen Signal has no accounts, telemetry, advertising, tracking pixels or external AI calls. Nothing is uploaded
 anywhere.
 
 ## What is stored
@@ -12,12 +12,12 @@ cookies and no account data.
 
 ## Personal data
 
-ListenSignal stores **no personal data beyond what appears in public headlines and feed snippets**. Those can
-name people (for example a person quoted in a news story). ListenSignal does not profile individuals, does not
+Listen Signal stores **no personal data beyond what appears in public headlines and feed snippets**. Those can
+name people (for example a person quoted in a news story). Listen Signal does not profile individuals, does not
 link mentions across sources to people, and is not designed to monitor private persons. Configure brands, not
 people. Forum feeds (such as r/norge) are seeded disabled.
 
-You control the data: delete `data/listensignal.db` to remove everything collected. If you deploy ListenSignal for
+You control the data: delete `data/listensignal.db` to remove everything collected. If you deploy Listen Signal for
 others, you are responsible for retention, access control and any legal basis required where you operate.
 
 ## Network use

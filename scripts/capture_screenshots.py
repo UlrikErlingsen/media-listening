@@ -36,7 +36,7 @@ def main() -> int:
         page = browser.new_page(viewport={"width": 1440, "height": 1000}, device_scale_factor=1)
         for name, (path, anchor) in PAGES.items():
             page.goto(f"{args.url}/{path}", wait_until="networkidle")
-            page.wait_for_selector(".ps-footer", timeout=60_000)
+            page.wait_for_selector(".sg-foot", timeout=60_000)
             page.wait_for_timeout(2500)  # let Plotly finish drawing
             if anchor:
                 page.get_by_text(anchor, exact=True).first.evaluate("el => el.scrollIntoView({block: 'start'})")

@@ -1,5 +1,25 @@
 # Changelog
 
+## [Unreleased]
+
+### Signal brand refresh
+
+- The dashboard uses the shared Signal theme (Organic design, Market family colour `#728157`): sidebar lockup,
+  masthead, hero, page headers, notes and footer come from `listensignal.ui.signal_theme`, synced from Signal Hub.
+  The pasted CSS and the old lockup are gone; the `st.navigation` page structure is unchanged.
+- Charts use the per-app Signal Plotly template (Figtree). Brand colours follow the Signal colorway with the own
+  brand in the Market colour; sentiment uses the shared diverging palette; the spike threshold uses the shared
+  threshold colour. The weekly pulse HTML export uses the same tokens.
+- Display name is now **Listen Signal** (with a space) in the app, exports, launchers and docs. The package name,
+  `LISTENSIGNAL_*` variables, the `ListenSignal/<version>` User-Agent and file names are unchanged.
+- New brand assets from Signal Hub: `assets/listensignal-banner.png`, `-social.png`, `-mark.svg` and
+  `-mark-32/64/512.png`; the marks also ship as `listensignal.ui` package data. The old `listensignal-banner.svg`
+  is removed. README screenshots are refreshed.
+- README follows the Signal README template (Scope, Data contract, Exports, Where this fits in Signal, References,
+  suite footer). Bug-report and feature-request issue templates added.
+- Rule change: Streamlit may be imported under `src/listensignal/ui/` only; the rest of the package stays UI-free
+  (architecture test updated, plus a test that the core imports without Streamlit).
+
 ## 1.0.0 — unreleased (local build, 2026-10-01)
 
 First version of **ListenSignal**, built from the v1 brief.

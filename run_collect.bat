@@ -1,11 +1,11 @@
 @echo off
-rem ListenSignal collector for Windows Task Scheduler (or a double-click).
+rem Listen Signal collector for Windows Task Scheduler (or a double-click).
 rem Fetches the feeds enabled in sources.yaml once, appends to logs\collect.log and exits.
 rem The collector itself skips any feed polled less than 30 minutes ago and re-checks robots.txt.
 setlocal
 cd /d "%~dp0"
 if not exist ".venv\Scripts\python.exe" (
-  echo Run run_app.bat once first to create ListenSignal's Python environment.
+  echo Run run_app.bat once first to create Listen Signal's Python environment.
   exit /b 1
 )
 if not exist "logs" mkdir logs
