@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "listensignal"
 version = "1.0.0"
-description = "ListenSignal: open, local-first media and social listening for Norwegian-language sources"
+description = "Listen Signal: open, local-first media and social listening for Norwegian-language sources"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "AGPL-3.0-or-later"
@@ -66,6 +66,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 listensignal = ["lexicon/*.txt"]
+"listensignal.ui" = ["assets/marks/*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

@@ -6,13 +6,14 @@ import streamlit as st
 
 from listensignal import find_matches
 from listensignal.analysis import SENTIMENT_ORDER, TIMEZONE
-from pages._ui import data_banner, empty_state, header, scorer_caption, view
+from listensignal.ui import signal_theme as sig
+from pages._ui import data_banner, empty_state, scorer_caption, view
 
-header(
+sig.header(
     "Mentions",
     "Latest mentions",
     "Every feed item that names a tracked brand, newest first. Open the link to read the story on the publisher's "
-    "site — ListenSignal stores only the headline and the snippet the feed itself published.",
+    "site — Listen Signal stores only the headline and the snippet the feed itself published.",
 )
 v = view()
 data_banner(v)

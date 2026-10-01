@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from html import escape
-import re
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -13,9 +11,10 @@ import streamlit as st
 from listensignal import SpikeRule, WeekWindow, change_headlines, daily_counts, rising_terms, spike_scores, weekly_change
 from listensignal.analysis import coverage_note
 from listensignal.analysis import SPIKE_MIN_COUNT, SPIKE_THRESHOLD
-from pages._ui import INK_2, MUTED, SURFACE, data_banner, empty_state, header, style, view
+from listensignal.ui import signal_theme as sig
+from pages._ui import BAND, INK, MUTED, NS, SURFACE, data_banner, empty_state, style, view
 
-header(
+sig.header(
     "What changed",
     "This week vs last week",
     "The last seven days against the seven before, per brand — with spikes flagged by a simple z-score rule on "
@@ -38,14 +37,13 @@ change = weekly_change(v.ws.mentions, v.brands, window, rule, v.ws.coverage_star
 st.markdown(f"#### {window.label()}")
 note = coverage_note(window, v.ws.coverage_start)
 if note:
-    st.markdown(f'<div class="warning-box">{note}</div>', unsafe_allow_html=True)
+    sig.note("warn", note)
 notes = change_headlines(change, rule)
 if notes:
     for note in notes:
-        bold = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", escape(note))  # brand names are user input
-        st.markdown(f'<div class="change-note">{bold}</div>', unsafe_allow_html=True)
+        sig.note("info", note)  # sig.note escapes the text (brand names are user input) and renders **bold**
 else:
-    st.markdown('<div class="boundary">No brand crossed the reporting rules this week.</div>', unsafe_allow_html=True)
+    sig.note("boundary", "No brand crossed the reporting rules this week.")
 st.caption(
     "Notes appear for spikes, volume changes of at least 50 % and 5 mentions, and rises of at least 15 percentage "
     "points in the negative share (with at least 5 mentions)."
@@ -70,7 +68,7 @@ st.dataframe(
 )
 
 st.markdown("### Spike detection")
-st.markdown(f'<div class="boundary"><strong>Rule.</strong> {rule.describe()}</div>', unsafe_allow_html=True)
+sig.note("boundary", f"**Rule.** {rule.describe()}")
 start = window.prev_start - timedelta(days=42)
 daily = daily_counts(v.ws.mentions, v.brands, start - timedelta(days=rule.window_days), end)
 scores = spike_scores(daily, rule, v.ws.coverage_start)
@@ -85,14 +83,14 @@ with left:
     fig.add_bar(x=list(part["date"]), y=part["count"], name="Mentions", marker=dict(color=v.colors[brand], cornerradius=4),
                 hovertemplate="%{x|%a %d.%m}: %{y} mentions<extra></extra>")
     fig.add_scatter(x=list(part["date"]), y=part["baseline_mean"], name=f"{rule.window_days}-day baseline mean",
-                    mode="lines", line=dict(color=INK_2, width=2, dash="dot"),
+                    mode="lines", line=dict(color=MUTED, width=2, dash="dot"),
                     hovertemplate="baseline %{y:.1f}<extra></extra>")
     if not flags.empty:
         fig.add_scatter(x=list(flags["date"]), y=flags["count"], mode="markers", name="Spike",
-                        marker=dict(symbol="diamond-open", size=15, color=INK_2, line=dict(width=2)),
+                        marker=dict(symbol="diamond-open", size=15, color=INK, line=dict(width=2)),
                         hovertemplate="spike: %{y}<extra></extra>")
     fig.add_vrect(x0=pd.Timestamp(window.this_start) - pd.Timedelta(hours=12), x1=pd.Timestamp(window.this_end) + pd.Timedelta(hours=12),
-                  fillcolor="#f2c66d", opacity=0.14, line_width=0)
+                  fillcolor=BAND, opacity=0.18, line_width=0)
     fig.update_layout(hovermode="x unified")
     fig.update_yaxes(title="Mentions per day", rangemode="tozero")
     st.plotly_chart(style(fig, 340), width="stretch")
@@ -101,11 +99,11 @@ with right:
     zfig.add_scatter(x=list(part["date"]), y=part["z"], name="z-score", mode="lines+markers",
                      line=dict(color=v.colors[brand], width=2), marker=dict(size=8, line=dict(color=SURFACE, width=2)),
                      hovertemplate="%{x|%a %d.%m}: z = %{y:.2f}<extra></extra>")
-    zfig.add_hline(y=threshold, line=dict(color="#e34948", width=2, dash="dash"),
+    zfig.add_hline(y=threshold, line=dict(color=sig.roles(NS)["threshold"], width=2, dash="dash"),
                    annotation_text=f"threshold z = {threshold:g}", annotation_font_color=MUTED,
                    annotation_position="top left")
     zfig.add_vrect(x0=pd.Timestamp(window.this_start) - pd.Timedelta(hours=12), x1=pd.Timestamp(window.this_end) + pd.Timedelta(hours=12),
-                   fillcolor="#f2c66d", opacity=0.14, line_width=0)
+                   fillcolor=BAND, opacity=0.18, line_width=0)
     zfig.update_layout(hovermode="x unified")
     zfig.update_yaxes(title="z-score vs previous days")
     st.plotly_chart(style(zfig, 340), width="stretch")

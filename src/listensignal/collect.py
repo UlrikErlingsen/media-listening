@@ -4,7 +4,7 @@
 
 Politeness rules enforced in code:
 
-* every request sends ListenSignal's User-Agent;
+* every request sends Listen Signal's User-Agent;
 * robots.txt is checked for every feed URL, and a disallowed or unreachable robots.txt skips the feed;
 * each feed is fetched at most once per 30 minutes (``min_interval_minutes`` can only raise this);
 * conditional requests (ETag / Last-Modified) avoid re-downloading unchanged feeds;
@@ -60,7 +60,7 @@ Fetcher = Callable[[str, dict[str, str]], FetchResponse]
 
 
 def http_fetch(url: str, headers: dict[str, str]) -> FetchResponse:
-    """GET with ListenSignal's User-Agent, a timeout and a size cap."""
+    """GET with Listen Signal's User-Agent, a timeout and a size cap."""
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **headers})
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
@@ -73,7 +73,7 @@ def http_fetch(url: str, headers: dict[str, str]) -> FetchResponse:
 
 
 class RobotsCache:
-    """robots.txt verdicts per host, for ListenSignal's User-Agent."""
+    """robots.txt verdicts per host, for Listen Signal's User-Agent."""
 
     def __init__(self, fetch: Fetcher = http_fetch) -> None:
         self._fetch = fetch
@@ -102,7 +102,7 @@ class RobotsCache:
             return False, "robots.txt unreachable earlier in this run"
         if parser.can_fetch(USER_AGENT, url):
             return True, "allowed by robots.txt"
-        return False, "disallowed by robots.txt for ListenSignal's User-Agent"
+        return False, "disallowed by robots.txt for Listen Signal's User-Agent"
 
 
 def _entry_time(entry: dict) -> datetime | None:
@@ -231,7 +231,7 @@ def run(
     conn = connect(db_path)
     robots = RobotsCache(fetch)
     outcomes = []
-    print(f"ListenSignal collector · {len(chosen)} feed(s) · at most one poll per {config.min_interval_minutes} min", file=out)
+    print(f"Listen Signal collector · {len(chosen)} feed(s) · at most one poll per {config.min_interval_minutes} min", file=out)
     for source in chosen:
         outcome = collect_source(conn, source, min_interval_minutes=config.min_interval_minutes, robots=robots, fetch=fetch)
         outcomes.append(outcome)

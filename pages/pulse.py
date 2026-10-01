@@ -6,9 +6,10 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from listensignal import build_pulse, pulse_html, pulse_xlsx
-from pages._ui import data_banner, empty_state, header, view
+from listensignal.ui import signal_theme as sig
+from pages._ui import data_banner, empty_state, view
 
-header(
+sig.header(
     "Export",
     "Weekly brand pulse",
     "A one-page HTML summary to share and an XLSX workbook with every table behind it. Both state the period, "

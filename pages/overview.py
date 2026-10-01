@@ -9,23 +9,20 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from listensignal import daily_counts, detect_spikes, period_comparison, sentiment_mix, share_of_voice, top_sources
-from pages._ui import INK_2, MUTED, SURFACE, data_banner, empty_state, scorer_caption, sentiment_bar, style, view
+from listensignal.ui import signal_theme as sig
+from pages._ui import INK, MUTED, NS, SURFACE, data_banner, empty_state, scorer_caption, sentiment_bar, style, view
 
 v = view()
 
-st.markdown(
-    """
-    <section class="ps-hero">
-      <div class="ps-eyebrow">NORWEGIAN MEDIA LISTENING</div>
-      <h1>Who is talking about the brand — <em>and in what tone?</em></h1>
-      <p>Mentions of your brand and competitors in Norwegian news feeds, with share of voice, local Norwegian
-      sentiment (NorBERT3 or a transparent lexicon) and spikes flagged by a rule you can read.</p>
-      <div class="ps-pills"><span class="ps-pill">Bokmål & Nynorsk matching</span><span class="ps-pill">exclusion terms</span>
-      <span class="ps-pill">share of voice</span><span class="ps-pill">sentence-level sentiment</span>
-      <span class="ps-pill">z-score spikes</span><span class="ps-pill">weekly pulse export</span></div>
-    </section>
-    """,
-    unsafe_allow_html=True,
+sig.hero(
+    NS,
+    eyebrow="NORWEGIAN MEDIA LISTENING",
+    title="Who is talking about the brand —",
+    em="and in what tone?",
+    body="Mentions of your brand and competitors in Norwegian news feeds, with share of voice, local Norwegian "
+    "sentiment (NorBERT3 or a transparent lexicon) and spikes flagged by a rule you can read.",
+    pills=["Bokmål & Nynorsk matching", "exclusion terms", "share of voice", "sentence-level sentiment",
+           "z-score spikes", "weekly pulse export"],
 )
 data_banner(v)
 if empty_state(v):
@@ -81,7 +78,7 @@ if grain == "Daily":
     if not marked.empty:
         fig.add_scatter(
             x=list(marked["date"]), y=marked["count"], mode="markers", name="Spike day",
-            marker=dict(symbol="diamond-open", size=15, color=INK_2, line=dict(width=2)),
+            marker=dict(symbol="diamond-open", size=15, color=INK, line=dict(width=2)),
             customdata=marked[["brand", "z"]], hovertemplate="Spike · %{customdata[0]}: %{y} (z = %{customdata[1]:.1f})<extra></extra>",
         )
 fig.update_layout(hovermode="x unified")
@@ -97,7 +94,7 @@ with left:
             y=ordered["brand"], x=ordered["share"], orientation="h",
             marker=dict(color=[v.colors[b] for b in ordered["brand"]], cornerradius=4),
             text=[f"{s:.0%} · {n}" for s, n in zip(ordered["share"], ordered["mentions"])], textposition="outside",
-            textfont=dict(color=INK_2), customdata=ordered["mentions"],
+            textfont=dict(color=MUTED), customdata=ordered["mentions"],
             hovertemplate="%{y}: %{x:.1%} (%{customdata} mentions)<extra></extra>",
         )
     )

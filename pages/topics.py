@@ -9,9 +9,10 @@ import streamlit as st
 from listensignal import cluster_topics
 from listensignal.analysis import SENTIMENT_ORDER
 from listensignal.topics import default_k
-from pages._ui import SENTIMENT_COLORS, SURFACE, data_banner, empty_state, header, style, view
+from listensignal.ui import signal_theme as sig
+from pages._ui import SENTIMENT_COLORS, SURFACE, data_banner, empty_state, style, view
 
-header(
+sig.header(
     "Topics",
     "What the coverage is about",
     "Headlines and snippets grouped by shared vocabulary. Each group is described by its most characteristic terms, "

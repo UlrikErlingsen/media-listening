@@ -9,13 +9,14 @@ import streamlit as st
 
 from listensignal import DataProblem, brands_to_yaml, collect_run, find_matches, load_sources, norbert_available, parse_brands_yaml
 from listensignal.config import DEFAULT_BRANDS, DEFAULT_SOURCES
-from pages._ui import PUBLIC_DEMO, base_workspace, clear_caches, custom_brands_key, header, show_error, workspace
+from listensignal.ui import signal_theme as sig
+from pages._ui import BRAND_PALETTE, PUBLIC_DEMO, base_workspace, clear_caches, custom_brands_key, show_error, workspace
 
-header(
+sig.header(
     "Configuration",
     "Sources & brands",
-    "What ListenSignal listens to and how it recognises each brand. Try your own brand list below for this "
-    "session, or edit <code>brands.yaml</code> and <code>sources.yaml</code> in the project folder.",
+    "What Listen Signal listens to and how it recognises each brand. Try your own brand list below for this "
+    "session, or edit brands.yaml and sources.yaml in the project folder.",
 )
 ws = workspace()
 
@@ -31,8 +32,9 @@ st.dataframe(
     hide_index=True,
     width="stretch",
 )
-if len(ws.brands) > 8:
-    st.warning("More than eight brands: brands after the eighth share one gray chart colour. Consider fewer brands.")
+if len(ws.brands) > len(BRAND_PALETTE):
+    st.warning(f"More than {len(BRAND_PALETTE)} brands: brands after the {len(BRAND_PALETTE)}th share one neutral chart "
+               "colour. Consider fewer brands.")
 
 with st.expander("Edit brands for this session", expanded=bool(st.session_state.get(custom_brands_key()))):
     st.caption(
@@ -91,7 +93,7 @@ try:
         column_config={"url": st.column_config.LinkColumn(), "note": st.column_config.TextColumn(width="large")},
     )
     st.caption(f"Each feed is polled at most once per {config.min_interval_minutes} minutes, and robots.txt is "
-               "re-checked on every run with ListenSignal's User-Agent.")
+               "re-checked on every run with Listen Signal's User-Agent.")
 except Exception as exc:  # noqa: BLE001 - shown to the user
     show_error(exc)
     config = None
@@ -105,7 +107,7 @@ available, why = norbert_available()
 st.caption(("Sentiment: NorBERT3 will be used if its model is in the local cache. " if available else "Sentiment: ")
            + ("" if available else why + " The lexicon fallback will be used."))
 if PUBLIC_DEMO:
-    st.info("Collection is switched off in this public demo. Run ListenSignal on your own machine to collect feeds.")
+    st.info("Collection is switched off in this public demo. Run Listen Signal on your own machine to collect feeds.")
 elif st.button("Fetch enabled feeds", type="primary", disabled=config is None):
     log = StringIO()
     with st.spinner("Fetching feeds and scoring new items …"):

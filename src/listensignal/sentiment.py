@@ -14,7 +14,7 @@ mentioned in it. Every stored score records which scorer produced it.
 Model: ``ltg/norbert3-base_sentence-sentiment`` (Language Technology Group, University of Oslo;
 CC-BY-4.0), fine-tuned on the sentence-level NoReC "mixed" subset. Its model card reports a weighted F1
 of 0.764 on that dataset's own test data (Negative 0.58, Positive 0.78, Neutral 0.83, Mixed 0.65).
-ListenSignal's own run on that test split measured 0.749 for NorBERT3 and 0.498 for the lexicon fallback
+Listen Signal's own run on that test split measured 0.749 for NorBERT3 and 0.498 for the lexicon fallback
 (docs/sentiment-evaluation.md). Those are review sentences, not news headlines; accuracy on news is unmeasured.
 """
 
@@ -32,7 +32,7 @@ from .matching import normalize_text
 
 LABELS = ("Positive", "Negative", "Neutral", "Mixed")
 MODEL_ID = "ltg/norbert3-base_sentence-sentiment"
-# Pinned revision: the model needs trust_remote_code=True, so ListenSignal only ever runs this reviewed commit.
+# Pinned revision: the model needs trust_remote_code=True, so Listen Signal only ever runs this reviewed commit.
 MODEL_REVISION = "a6f56334e237664a30573cf2c4b9f94a28934425"
 NORBERT_NAME = f"norbert3@{MODEL_REVISION[:7]}"
 LEXICON_NAME = "lexicon-v1"

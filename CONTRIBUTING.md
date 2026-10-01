@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions should keep ListenSignal's boundaries:
+Contributions should keep Listen Signal's boundaries:
 
 - **Feeds only.** Use public RSS/Atom feeds that the publisher's robots.txt allows. No full-text scraping, no
   paywall workarounds, no unofficial platform APIs. Respect the 30-minute poll floor.
@@ -8,8 +8,11 @@ Contributions should keep ListenSignal's boundaries:
 - **Honest numbers.** Never claim sentiment accuracy you have not measured. If you evaluate, say on what data, and
   do not tune on the test split.
 - **Explainable rules.** Spike, matching and topic rules must stay readable and be shown in the app.
-- **UI-free package.** Logic goes in `src/listensignal/` and must not import Streamlit; Streamlit code goes in
-  `app.py` and `pages/`. Storage changes go through `storage.py`.
+- **UI-free package.** Logic goes in `src/listensignal/` and must not import Streamlit, except inside
+  `src/listensignal/ui/` (the synced Signal theme). Streamlit pages go in `app.py` and `pages/`. Storage changes
+  go through `storage.py`.
+- **Shared look.** Use the Signal theme (`from listensignal.ui import signal_theme as sig`) instead of custom CSS
+  or hard-coded colours. Do not edit the synced theme files; they are copied from Signal Hub.
 
 When adding a feed to `sources.yaml`, include the date you verified it, and a note if the publisher restricts
 text and data mining or media monitoring.

@@ -6,17 +6,17 @@ import streamlit as st
 
 from listensignal import SpikeRule
 from listensignal.sentiment import MODEL_ID, MODEL_REVISION
-from pages._ui import header
+from listensignal.ui import signal_theme as sig
 
-header(
+sig.header(
     "Methods and boundaries",
-    "What ListenSignal calculates — and what it cannot tell you",
+    "What Listen Signal calculates — and what it cannot tell you",
     "Every number on the other pages comes from one of the simple, inspectable rules below.",
 )
 
 st.markdown("### Sources and collection")
 st.write(
-    "ListenSignal reads RSS/Atom feeds listed in `sources.yaml` and stores the headline, the snippet as published "
+    "Listen Signal reads RSS/Atom feeds listed in `sources.yaml` and stores the headline, the snippet as published "
     "in the feed (capped at 400 characters), the link, the source name and the published time. It never opens "
     "article pages, never stores full text and never bypasses paywalls. Each feed is polled at most once per 30 "
     "minutes with a descriptive User-Agent; robots.txt is checked on every run and a disallowed feed is skipped. "
@@ -33,13 +33,13 @@ st.write(
 )
 st.markdown("### Sentiment")
 st.write(
-    f"With the optional `[sentiment]` extra, ListenSignal runs `{MODEL_ID}` (University of Oslo, Language "
+    f"With the optional `[sentiment]` extra, Listen Signal runs `{MODEL_ID}` (University of Oslo, Language "
     f"Technology Group; CC-BY-4.0) locally on CPU, pinned to revision `{MODEL_REVISION[:7]}` because the model "
     "requires `trust_remote_code=True`. Its model card reports a weighted F1 of 0.764 on the sentence-level NoReC "
-    "test data; ListenSignal's own run on that split (1 Oct 2026) measured 0.749. Without the extra, a transparent "
+    "test data; Listen Signal's own run on that split (1 Oct 2026) measured 0.749. Without the extra, a transparent "
     "word-list scorer (`lexicon-v1`, Bokmål and Nynorsk, simple negation) is used; it measured a weighted F1 of "
     "0.498 on the same split (always guessing Neutral scores 0.301) and finds only about one in ten negative "
-    "sentences. Those are review sentences: ListenSignal has **not** measured accuracy on news headlines, where "
+    "sentences. Those are review sentences: Listen Signal has **not** measured accuracy on news headlines, where "
     "NorBERT3 labels most items Neutral. Details: `docs/sentiment-evaluation.md`."
 )
 st.write(
@@ -66,9 +66,8 @@ st.write(
     "- LLM calls to external APIs. Nothing leaves the machine except the feed requests you configure.\n"
     "- Reach, audience size or impressions: a mention in a small trade feed counts the same as one in a national paper."
 )
-st.markdown(
-    '<div class="boundary"><strong>Interpretation boundary:</strong> ListenSignal counts what the configured feeds '
-    "published while the collector ran. It does not measure what people think, the reach of a story, or why a "
-    "change occurred.</div>",
-    unsafe_allow_html=True,
+sig.note(
+    "boundary",
+    "**Interpretation boundary:** Listen Signal counts what the configured feeds published while the collector ran. "
+    "It does not measure what people think, the reach of a story, or why a change occurred.",
 )

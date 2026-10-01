@@ -1,13 +1,19 @@
-"""Architecture rules for the future Signal Hub: the package is UI-free and storage sits behind one module."""
+"""Architecture rules for Signal Hub: the package is UI-free except src/listensignal/ui/, and storage sits behind one
+module."""
 
 import ast
+import os
 from pathlib import Path
+import subprocess
+import sys
+
 import pytest
 
 import listensignal
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
+UI = SRC / "listensignal" / "ui"  # the one place under src/ allowed to import Streamlit (Signal Hub contract)
 
 
 def _imports(path: Path) -> set[str]:
@@ -21,16 +27,34 @@ def _imports(path: Path) -> set[str]:
     return names
 
 
-def test_no_file_under_src_imports_streamlit():
+def _core_files() -> list[Path]:
+    return [path for path in SRC.rglob("*.py") if UI not in path.parents]
+
+
+def test_no_file_under_src_imports_streamlit_except_ui():
     offenders = [
         str(path.relative_to(ROOT))
-        for path in SRC.rglob("*.py")
+        for path in _core_files()
         if any(name == "streamlit" or name.startswith("streamlit.") for name in _imports(path))
     ]
-    assert offenders == [], f"Streamlit imported inside the package: {offenders}"
+    assert offenders == [], f"Streamlit imported inside the package outside ui/: {offenders}"
     # Also catch dynamic imports such as importlib.import_module("streamlit").
-    for path in SRC.rglob("*.py"):
+    for path in _core_files():
         assert "import_module(\"streamlit" not in path.read_text(encoding="utf-8")
+    # Nothing in the core may reach into ui/ either, so the analysis stays importable without Streamlit.
+    for path in _core_files():
+        assert not any(name.startswith("listensignal.ui") for name in _imports(path)), path
+        assert "from .ui" not in path.read_text(encoding="utf-8"), path
+
+
+def test_core_package_imports_without_streamlit():
+    code = (
+        "import sys; sys.modules['streamlit'] = None; "
+        "import listensignal, listensignal.analysis, listensignal.collect, listensignal.pulse, listensignal.topics"
+    )
+    env = {**os.environ, "PYTHONPATH": str(SRC)}
+    result = subprocess.run([sys.executable, "-c", code], cwd=ROOT, env=env, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
 
 
 def test_only_storage_module_touches_sqlite():

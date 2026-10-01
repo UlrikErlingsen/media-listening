@@ -3,10 +3,12 @@ from pathlib import Path
 import pytest
 from streamlit.testing.v1 import AppTest
 
+from listensignal import __version__
 from listensignal.config import load_brands, load_sources
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = str(ROOT / "app.py")
+UI = ROOT / "src" / "listensignal" / "ui"
 PAGES = ["overview", "what_changed", "brand", "mentions", "topics", "pulse", "sources", "methods"]
 
 
@@ -45,7 +47,12 @@ def test_app_opens_on_the_fictional_demo():
     body = "\n".join(str(m.value) for m in app.markdown)
     assert "Fictional demo." in body
     assert "Who is talking about the brand" in body
-    assert "ListenSignal v1.0.0" in body and "AGPL-3.0-or-later" in body
+    assert f"Listen Signal v{__version__}" in body and "AGPL-3.0-or-later" in body
+    assert "counts what feeds published, not what people think" in body
+    assert "LISTEN → COMPARE → FLAG" in body
+    assert "sg-mast" in body and "sg-hero" in body and "sg-foot" in body  # the shared Signal shell
+    sidebar = "\n".join(str(m.value) for m in app.sidebar.markdown)
+    assert "sg-side" in sidebar and "Norwegian media listening without the monitoring subscription." in sidebar
     assert app.sidebar.radio[0].value == "demo"
 
 
@@ -63,16 +70,37 @@ def test_what_changed_shows_rule_and_spike():
     assert "<strong>Fjellbrus</strong>: spike on 22.09" in body
 
 
-def test_app_source_keeps_suite_shell_and_accessibility():
-    source = (ROOT / "app.py").read_text(encoding="utf-8")
-    assert ":focus-visible" in source and "@media (max-width:760px)" in source
-    assert "prefers-reduced-motion" in source and "show_error" in source
+def test_app_uses_shared_signal_theme_and_keeps_accessibility():
+    standalone = (ROOT / "app.py").read_text(encoding="utf-8")
+    pages = "\n".join(path.read_text(encoding="utf-8") for path in sorted((ROOT / "pages").glob("*.py")))
+    theme = (UI / "signal_theme.py").read_text(encoding="utf-8")
+    assert 'st.set_page_config(**sig.page_config(NS, "Norwegian media listening"))' in standalone
+    assert "sig.apply(NS)" in standalone and "show_error" in standalone
+    assert "from listensignal.ui import signal_theme as sig" in standalone
+    assert 'NS = "listen"' in pages and "sig.template(NS)" in pages
+    assert "<style>" not in standalone + pages
+    for old_colour in ("#173c3a", "#d95b40", "#83d2b4", "#f2c66d", "#17322e", "#102c2a", "#2a78d6", "#e34948"):
+        assert old_colour not in (standalone + pages).lower(), old_colour
+    assert (UI / "assets" / "marks" / "listensignal-mark-64.png").exists()
+    assert ":focus-visible" in theme and "@media (max-width:760px)" in theme
+    assert "@media (prefers-reduced-motion:reduce)" in theme
     config = (ROOT / ".streamlit" / "config.toml").read_text(encoding="utf-8")
     assert "gatherUsageStats = false" in config
+    assert 'primaryColor = "#728157"' in config  # Signal Market family, 600 step
     docker = (ROOT / "Dockerfile").read_text(encoding="utf-8")
     assert "USER listensignal" in docker and "HEALTHCHECK" in docker
     launcher = (ROOT / "run_app.bat").read_text(encoding="utf-8")
     assert "--browser.gatherUsageStats=false" in launcher and "LISTENSIGNAL_PORT" in launcher
+
+
+def test_brand_palette_comes_from_the_signal_theme():
+    import pages._ui as ui
+    from listensignal.ui import signal_theme as sig
+
+    assert sig.app(ui.NS)["name"] == "Listen Signal" and sig.app(ui.NS)["family"] == "market"
+    assert ui.BRAND_PALETTE[0] == sig.FAMILIES["market"]["600"] == "#728157"  # own brand = family colour
+    assert set(ui.BRAND_PALETTE) <= set(sig.colorway(ui.NS))
+    assert ui.SENTIMENT_COLORS["Positive"] in sig.DIVERGING and ui.SENTIMENT_COLORS["Negative"] in sig.DIVERGING
 
 
 def test_readme_follows_suite_structure_and_states_limits():

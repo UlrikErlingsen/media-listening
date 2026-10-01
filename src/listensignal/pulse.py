@@ -36,7 +36,7 @@ from .workspace import Workspace, database_workspace, demo_workspace
 
 SENTIMENT_LIMITS = (
     "Sentiment is an indicator, not a verdict. It labels the tone of each headline and feed snippet — not the "
-    "tone towards a particular brand — and has not been validated on Norwegian news headlines by ListenSignal. "
+    "tone towards a particular brand — and has not been validated on Norwegian news headlines by Listen Signal. "
     "Each label records which scorer produced it (NorBERT3 or the lexicon fallback)."
 )
 COUNT_LIMITS = (
@@ -128,8 +128,8 @@ def build_pulse(workspace: Workspace, end: date | None = None, rule: SpikeRule =
 def pulse_xlsx(report: PulseReport) -> bytes:
     about = pd.DataFrame(
         [
-            ("Report", "ListenSignal weekly brand pulse"),
-            ("Version", f"ListenSignal {__version__}"),
+            ("Report", "Listen Signal weekly brand pulse"),
+            ("Version", f"Listen Signal {__version__}"),
             ("Generated", report.generated),
             ("Data", report.workspace_label),
             ("Demo notice", report.notice or "—"),
@@ -168,6 +168,12 @@ def _pct(value: object) -> str:
     return "—" if value is None or pd.isna(value) else f"{float(value):.0%}"
 
 
+# Signal "Organic" tokens, mirrored from listensignal/ui/signal_theme.py (CORE, FAMILIES, DIVERGING) for the
+# standalone HTML export. This module must stay Streamlit-free, so it cannot import the theme itself.
+SENTIMENT_HEX = {"Positive": "#4f80a2", "Neutral": "#a19786", "Mixed": "#a06f1f", "Negative": "#b2622d",
+                 "Unscored": "#ebddc5"}
+
+
 def _signed(value: object) -> str:
     return "—" if value is None or pd.isna(value) else f"{float(value):+.2f}"
 
@@ -178,7 +184,7 @@ def _md_bold(text: str) -> str:
 
 def pulse_html(report: PulseReport) -> str:
     e = html.escape
-    colors = {"Positive": "#2f8f6b", "Neutral": "#b9c4c0", "Mixed": "#f2c66d", "Negative": "#d95b40", "Unscored": "#e6e6e6"}
+    colors = SENTIMENT_HEX
     rows = []
     for row in report.change.itertuples(index=False):
         mix = report.sentiment.loc[report.sentiment["brand"] == row.brand]
@@ -206,21 +212,21 @@ def pulse_html(report: PulseReport) -> str:
     demo = f'<p class=demo><strong>Fictional demo.</strong> {e(report.notice)}</p>' if report.is_demo else ""
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ListenSignal weekly pulse {report.window.this_end:%Y-%m-%d}</title>
+<title>Listen Signal weekly pulse {report.window.this_end:%Y-%m-%d}</title>
 <style>
-body{{font-family:Inter,Segoe UI,Arial,sans-serif;color:#17322e;background:#f8f5ed;margin:0;padding:24px}}
-main{{max-width:960px;margin:auto;background:#fff;border:1px solid rgba(23,50,46,.14);border-radius:18px;padding:28px 32px}}
-h1{{margin:0;font-size:26px;letter-spacing:-.02em}} h1 span{{color:#d95b40}} h2{{font-size:15px;margin:22px 0 8px;text-transform:uppercase;letter-spacing:.08em;color:#59716c}}
-.sub{{color:#59716c;margin:4px 0 0}} table{{width:100%;border-collapse:collapse;font-size:13px}}
-th,td{{padding:6px 8px;border-bottom:1px solid #e7ebe8;text-align:left}} th{{font-size:11px;color:#59716c;text-transform:uppercase}}
-.n{{text-align:right;font-variant-numeric:tabular-nums}} .bar{{display:flex;height:12px;border-radius:6px;overflow:hidden;min-width:140px;background:#eee}}
+body{{font-family:Figtree,system-ui,Segoe UI,Arial,sans-serif;color:#201e1d;background:#f5ead8;margin:0;padding:24px}}
+main{{max-width:960px;margin:auto;background:#f9f4ed;border-radius:28px;padding:28px 32px}}
+h1{{margin:0;font-size:26px;font-weight:800;letter-spacing:-.03em}} h1 span{{color:#728157}} h2{{font-size:15px;margin:22px 0 8px;text-transform:uppercase;letter-spacing:.08em;color:#56633f}}
+.sub{{color:#645c50;margin:4px 0 0}} table{{width:100%;border-collapse:collapse;font-size:13px}}
+th,td{{padding:6px 8px;border-bottom:1px solid rgba(32,30,29,.16);text-align:left}} th{{font-size:11px;color:#645c50;text-transform:uppercase}}
+.n{{text-align:right;font-variant-numeric:tabular-nums}} .bar{{display:flex;height:12px;border-radius:6px;overflow:hidden;min-width:140px;background:#ebddc5}}
 .bar span{{display:block;height:100%}} .k{{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 4px 0 10px}}
-ul{{margin:0;padding-left:18px;font-size:14px;line-height:1.55}} .m{{color:#59716c;font-size:12px}} a{{color:#9b3e2b}}
-.demo{{background:rgba(242,198,109,.2);border-left:4px solid #f2c66d;padding:8px 12px;border-radius:0 10px 10px 0;font-size:13px}}
-.limits{{font-size:11.5px;color:#59716c;line-height:1.5;border-top:1px solid #e7ebe8;margin-top:22px;padding-top:10px}}
+ul{{margin:0;padding-left:18px;font-size:14px;line-height:1.55}} .m{{color:#645c50;font-size:12px}} a{{color:#56633f}}
+.demo{{background:#fff2eb;color:#643312;padding:8px 12px;border-radius:16px;font-size:13px}}
+.limits{{font-size:11.5px;color:#645c50;line-height:1.5;border-top:1px solid rgba(32,30,29,.16);margin-top:22px;padding-top:10px}}
 @media print{{body{{padding:0;background:#fff}} main{{border:0}}}}
 </style></head><body><main>
-<h1>Listen<span>Signal</span> · weekly brand pulse</h1>
+<h1>Listen <span>Signal</span> · weekly brand pulse</h1>
 <p class=sub>{e(report.window.label())} · {e(report.workspace_label)} · generated {e(report.generated)}</p>
 {demo}
 <h2>What changed</h2><ul>{notes}</ul>
@@ -233,7 +239,7 @@ ul{{margin:0;padding-left:18px;font-size:14px;line-height:1.55}} .m{{color:#5971
 <h2>Latest mentions</h2><ul>{latest}</ul>
 <p class=limits><strong>Spike rule:</strong> {e(report.rule.describe())}<br><strong>Sentiment:</strong> {e(SENTIMENT_LIMITS)}
  Scorer(s) this week: {e(', '.join(report.scorers) or '—')}.<br><strong>Coverage:</strong> {e(COUNT_LIMITS)}<br>
-ListenSignal {__version__} · local-first · part of the Signal suite · AGPL-3.0-or-later</p>
+Listen Signal {__version__} · local-first · part of the Signal suite · AGPL-3.0-or-later</p>
 </main></body></html>
 """
 

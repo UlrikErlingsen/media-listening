@@ -1,4 +1,4 @@
-"""ListenSignal: local-first media and social listening for Norwegian-language sources.
+"""Listen Signal: local-first media and social listening for Norwegian-language sources.
 
 Public API (the Streamlit app and any future Signal Hub use only these names):
 

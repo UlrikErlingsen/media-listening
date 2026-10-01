@@ -1,4 +1,4 @@
-"""Shared Streamlit helpers for ListenSignal pages. All analysis lives in the listensignal package."""
+"""Shared Streamlit helpers for Listen Signal pages. All analysis lives in the listensignal package."""
 
 from __future__ import annotations
 
@@ -23,15 +23,18 @@ from listensignal import (
 )
 from listensignal.analysis import SENTIMENT_ORDER
 from listensignal.config import DEFAULT_BRANDS, DEFAULT_DB
+from listensignal.ui import signal_theme as sig
 
-# Validated categorical order (passes adjacent CVD and normal-vision checks); colour follows the brand's
-# position in brands.yaml, never its rank, so filtering never repaints a brand.
-BRAND_PALETTE = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948")
-OTHER_COLOR = "#898781"
-# Diverging: blue (positive) <-> red (negative) with a gray midpoint; Mixed is a separate non-polar hue.
-SENTIMENT_COLORS = {"Positive": "#2a78d6", "Neutral": "#c3c2b7", "Mixed": "#eda100", "Negative": "#e34948",
-                    "Unscored": "#e1e0d9"}
-INK, INK_2, MUTED, GRID, AXIS, SURFACE = "#17322e", "#52514e", "#898781", "#e1e0d9", "#c3c2b7", "#fcfcfb"
+NS = "listen"  # signal_theme key: Listen Signal, Market family
+# Categorical brand colours from the Signal colorway (own family first). Colour follows the brand's position in
+# brands.yaml, never its rank, so filtering never repaints a brand; brands beyond the palette share the neutral.
+BRAND_PALETTE = tuple(sig.colorway(NS)[:-1])
+OTHER_COLOR = sig.CORE["muted"]
+# Diverging: Decide blue (positive) <-> Brand clay (negative) with a neutral midpoint; Mixed is a separate
+# non-polar hue (Research family).
+SENTIMENT_COLORS = {"Positive": sig.DIVERGING[1], "Neutral": sig.CORE["soft"], "Mixed": sig.FAMILIES["research"]["600"],
+                    "Negative": sig.DIVERGING[5], "Unscored": sig.CORE["surface"]}
+INK, MUTED, BAND, SURFACE = sig.CORE["text"], sig.CORE["muted"], sig.CORE["soft"], sig.CORE["paper"]
 PERIODS = {"Last 4 weeks": 28, "Last 12 weeks": 84, "All data": None}
 # Hosted demo: only the fictional data, no database and no outbound feed requests.
 PUBLIC_DEMO = os.getenv("LISTENSIGNAL_PUBLIC_DEMO") == "1"
@@ -116,15 +119,9 @@ def view() -> View:
     return View(ws, scoped, start, end, ws.brand_names, brand_colors(ws.brand_names))
 
 
-def header(kicker: str, title: str, subtitle: str) -> None:
-    st.markdown(f'<div class="pulse-kicker">{kicker}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="pulse-title">{title}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="pulse-subtitle">{subtitle}</div>', unsafe_allow_html=True)
-
-
 def data_banner(v: View) -> None:
     if v.ws.is_demo:
-        st.markdown(f'<div class="warning-box"><strong>Fictional demo.</strong> {v.ws.notice}</div>', unsafe_allow_html=True)
+        sig.note("warn", f"**Fictional demo.** {v.ws.notice}")
     if st.session_state.get(custom_brands_key()):
         st.caption("Custom brand list active for this session (Sources & brands → Edit brands).")
     st.caption(f"{v.ws.label} · {v.start:%d.%m.%Y} – {v.end:%d.%m.%Y} · {len(v.mentions):,} brand mentions")
@@ -149,21 +146,19 @@ def empty_state(v: View) -> bool:
 
 
 def style(fig: go.Figure, height: int = 360, *, legend: bool = True) -> go.Figure:
+    """Chart layout on top of Listen Signal's Plotly template (Figtree, Market-family colorway)."""
     fig.update_layout(
+        template=sig.template(NS),
         height=height,
         margin=dict(l=8, r=8, t=52 if legend else 12, b=8),
-        paper_bgcolor=SURFACE,
-        plot_bgcolor=SURFACE,
-        font=dict(family='system-ui, -apple-system, "Segoe UI", sans-serif', color=INK_2, size=13),
         legend=dict(orientation="h", yanchor="bottom", y=1.04, xanchor="left", x=0, title=None, traceorder="normal")
         if legend
         else None,
         showlegend=legend,
-        hoverlabel=dict(bgcolor="white", font_color=INK, bordercolor=GRID),
         bargap=0.25,
     )
-    fig.update_xaxes(showgrid=False, linecolor=AXIS, tickfont_color=MUTED, ticks="", title_font_color=MUTED)
-    fig.update_yaxes(gridcolor=GRID, zeroline=False, linecolor=AXIS, tickfont_color=MUTED, title_font_color=MUTED)
+    fig.update_xaxes(showgrid=False, ticks="", tickfont_color=MUTED, title_font_color=MUTED)
+    fig.update_yaxes(zeroline=False, ticks="", tickfont_color=MUTED, title_font_color=MUTED)
     return fig
 
 
@@ -194,7 +189,7 @@ def show_error(exc: Exception) -> None:
 
 SENTIMENT_NOTE = (
     "Sentiment is an indicator, not a verdict: it labels the tone of the headline and snippet, not the tone "
-    "towards the brand, and ListenSignal has not measured its accuracy on news headlines. "
+    "towards the brand, and Listen Signal has not measured its accuracy on news headlines. "
 )
 
 

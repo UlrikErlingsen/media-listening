@@ -1,4 +1,4 @@
-"""User-facing errors raised by ListenSignal."""
+"""User-facing errors raised by Listen Signal."""
 
 from __future__ import annotations
 
@@ -12,8 +12,8 @@ def friendly_message(exc: Exception) -> str:
     if isinstance(exc, DataProblem):
         return str(exc)
     if isinstance(exc, ValueError):
-        return f"ListenSignal could not complete that step: {exc}"
+        return f"Listen Signal could not complete that step: {exc}"
     return (
-        "ListenSignal could not complete that step. Check brands.yaml and sources.yaml and try again. "
+        "Listen Signal could not complete that step. Check brands.yaml and sources.yaml and try again. "
         "Set LISTENSIGNAL_DEBUG=1 before launch if you need technical details."
     )

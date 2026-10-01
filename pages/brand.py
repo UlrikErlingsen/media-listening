@@ -10,19 +10,19 @@ import streamlit as st
 
 from listensignal import period_comparison, rising_terms, top_sources, weekly_tone
 from listensignal.analysis import SENTIMENT_ORDER, TIMEZONE
+from listensignal.ui import signal_theme as sig
 from pages._ui import (
-    INK_2,
+    MUTED,
     SENTIMENT_COLORS,
     SURFACE,
     data_banner,
     empty_state,
-    header,
     scorer_caption,
     style,
     view,
 )
 
-header(
+sig.header(
     "Brand profile",
     "One brand, up close",
     "Volume and tone week by week, the words that set this brand's coverage apart from its competitors', where it "
@@ -110,7 +110,7 @@ with right:
     sources = top_sources(mine, 8)
     bar = go.Figure(go.Bar(y=sources["source"][::-1], x=sources["mentions"][::-1], orientation="h",
                            marker=dict(color=v.colors[brand], cornerradius=4), text=sources["mentions"][::-1],
-                           textposition="outside", textfont=dict(color=INK_2),
+                           textposition="outside", textfont=dict(color=MUTED),
                            hovertemplate="%{y}: %{x} mentions<extra></extra>"))
     bar.update_yaxes(gridcolor="rgba(0,0,0,0)")
     st.plotly_chart(style(bar, 90 + 34 * len(sources), legend=False), width="stretch")
@@ -127,9 +127,11 @@ def _latest(label: str) -> None:
         url = str(row.url) if str(row.url).startswith(("https://", "http://")) else "#"
         items.append(  # feed text is untrusted: escape everything
             f'<li><a href="{escape(url)}" target="_blank" rel="noopener noreferrer">{escape(str(row.title))}</a>'
-            f' <span class="small-note">· {escape(str(row.source))} · {when:%d.%m %H:%M}</span></li>'
+            f' <span style="color:var(--sg-muted);font-size:.86rem">· {escape(str(row.source))} · '
+            f"{when:%d.%m %H:%M}</span></li>"
         )
-    st.markdown(f'<ul class="item-list">{"".join(items)}</ul>', unsafe_allow_html=True)
+    st.markdown(f'<ul style="padding-left:1.1rem;margin:.2rem 0 0;line-height:1.6">{"".join(items)}</ul>',
+                unsafe_allow_html=True)
 
 
 left, right = st.columns(2)

@@ -1,9 +1,13 @@
-# AGENTS.md — ListenSignal (repo: media-listening)
+# AGENTS.md — Listen Signal (repo: media-listening)
 
-You are building **ListenSignal**, a new product in Ulrik Erlingsen's **Signal** suite
+You are building **Listen Signal**, a new product in Ulrik Erlingsen's **Signal** suite
 (open-source, local-first marketing tools; see sibling repos such as `brand-tracking`
-= TrackSignal and `open-text-analysis` for house style). This repo starts empty except for this
+= Track Signal and `open-text-analysis` for house style). This repo starts empty except for this
 file, a README stub, LICENSE and .gitignore. Build v1 from this brief.
+
+Display name: **Listen Signal** (with a space) in every user-facing place. Technical identifiers stay
+unchanged: package `listensignal`, `LISTENSIGNAL_*` variables, the `ListenSignal/<version>` User-Agent,
+file slugs such as `listensignal-banner.png`.
 
 ## What it is
 
@@ -55,6 +59,13 @@ State on screen and in README that demo mentions are fictional.
 ## Stack and house style (match other Signal repos)
 
 - Python 3.10+, Streamlit `app.py`, package `src/listensignal/`, tests in `tests/`.
+- **No Streamlit import anywhere under `src/listensignal/` except `src/listensignal/ui/`** (enforced by
+  `tests/test_architecture.py`). Analysis, storage and exports stay UI-free; Streamlit pages live in
+  `app.py` and `pages/`.
+- Look and feel comes from the synced Signal theme: `from listensignal.ui import signal_theme as sig`, key
+  `listen` (Market family). Never edit the synced files (`src/listensignal/ui/signal_theme.py`,
+  `src/listensignal/ui/assets/marks/*`, `.streamlit/config.toml`, `assets/listensignal-*.png|svg`); change
+  them in Signal Hub `signal-theme/` and re-sync.
 - SQLite in `./data/listensignal.db` (gitignored). feedparser, pandas, plotly, openpyxl, pyyaml,
   scikit-learn; `transformers` + `torch` as an **optional extra** `[sentiment]`.
 - No telemetry, no accounts, no external AI APIs. Network use only for the RSS feeds the user configures.
@@ -62,7 +73,8 @@ State on screen and in README that demo mentions are fictional.
   `Dockerfile`, `run_app.bat` — mirror `brand-tracking`.
 - ruff (line length 120) + pytest. Tests: alias/exclusion matching incl. Norwegian inflections,
   de-duplication, spike detection, lexicon fallback, demo determinism.
-- README in TrackSignal's structure; add CHANGELOG, SECURITY, PRIVACY (no personal data stored
+- README follows the Signal README template (Signal Hub `signal-theme/README.template.md`); add
+  CHANGELOG, SECURITY, PRIVACY (no personal data stored
   beyond what's in public headlines), CONTRIBUTING.
 
 ## Definition of done for v1
