@@ -1,0 +1,11 @@
+# Words that flip the polarity of the next three words.
+aldri
+ikke
+ikkje
+ingen
+inga
+ingenting
+ingi
+uten
+utan
+verken
