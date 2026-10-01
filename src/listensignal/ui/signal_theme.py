@@ -149,13 +149,14 @@ def template(key: str) -> str:
     return f"signal-{key}"
 
 
-def chart(app_key: str, fig, **kwargs) -> None:
+def chart(app_key: str, fig, **kwargs):
     """Show a Plotly figure in the Signal look: the app's template, and theme=None so Streamlit's own chart theme
-    does not replace Figtree and the palette. Other keyword arguments go to st.plotly_chart (key=, on_select=...)."""
+    does not replace Figtree and the palette. Other keyword arguments go to st.plotly_chart (key=, on_select=...);
+    its return value (the selection state when on_select is set) is passed back."""
     fig.update_layout(template=template(app_key))
     kwargs.setdefault("theme", None)
     kwargs.setdefault("width", "stretch")
-    st.plotly_chart(fig, **kwargs)
+    return st.plotly_chart(fig, **kwargs)
 
 
 def roles(key: str) -> dict:
@@ -206,6 +207,9 @@ a {{ color:var(--sg-a700); }} a:hover {{ color:var(--sg-a800); }}
 [data-testid="stSidebar"] [role="radiogroup"] label {{ border-radius:999px; padding:.3rem .8rem; margin:0; }}
 [data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background:rgba(249,244,237,.08); }}
 [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) {{ background:var(--sg-a700); }}
+[data-testid="stSidebar"] [data-testid="stExpander"] {{ background:rgba(249,244,237,.06); border-color:rgba(249,244,237,.18); }}
+[data-testid="stSidebar"] [data-testid="stExpander"] summary, [data-testid="stSidebar"] [data-testid="stExpander"] summary * {{ color:{c['sidebar_text']} !important; }}
+[data-testid="stSidebar"] [data-testid="stExpander"] [data-testid="stMarkdownContainer"] * {{ color:{c['sidebar_text']}; }}
 
 /* st.navigation menu (multipage apps and Signal Hub) */
 [data-testid="stSidebarNav"] a {{ border-radius:999px; }}
