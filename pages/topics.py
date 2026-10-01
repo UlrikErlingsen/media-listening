@@ -10,7 +10,7 @@ from listensignal import cluster_topics
 from listensignal.analysis import SENTIMENT_ORDER
 from listensignal.topics import default_k
 from listensignal.ui import signal_theme as sig
-from pages._ui import SENTIMENT_COLORS, SURFACE, data_banner, empty_state, style, view
+from pages._ui import NS, SENTIMENT_COLORS, SURFACE, data_banner, empty_state, style, view
 
 sig.header(
     "Topics",
@@ -52,7 +52,7 @@ for label in SENTIMENT_ORDER:
 fig.update_layout(barmode="stack")
 fig.update_yaxes(gridcolor="rgba(0,0,0,0)")
 fig.update_xaxes(title="Items")
-st.plotly_chart(style(fig, 110 + 34 * len(clusters)), width="stretch")
+sig.chart(NS, style(fig, 110 + 34 * len(clusters)), key="listen:topics_sentiment")
 
 brand_mix = scope.groupby(["topic", "brand"]).size().unstack("brand", fill_value=0)
 clusters["brands"] = [

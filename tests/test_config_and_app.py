@@ -78,6 +78,7 @@ def test_app_uses_shared_signal_theme_and_keeps_accessibility():
     assert "sig.apply(NS)" in standalone and "show_error" in standalone
     assert "from listensignal.ui import signal_theme as sig" in standalone
     assert 'NS = "listen"' in pages and "sig.template(NS)" in pages
+    assert "sig.chart(NS, " in pages and "st.plotly_chart" not in pages  # theme=None + per-app template
     assert "<style>" not in standalone + pages
     for old_colour in ("#173c3a", "#d95b40", "#83d2b4", "#f2c66d", "#17322e", "#102c2a", "#2a78d6", "#e34948"):
         assert old_colour not in (standalone + pages).lower(), old_colour

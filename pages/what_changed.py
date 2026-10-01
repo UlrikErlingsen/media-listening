@@ -93,7 +93,7 @@ with left:
                   fillcolor=BAND, opacity=0.18, line_width=0)
     fig.update_layout(hovermode="x unified")
     fig.update_yaxes(title="Mentions per day", rangemode="tozero")
-    st.plotly_chart(style(fig, 340), width="stretch")
+    sig.chart(NS, style(fig, 340), key="listen:what_changed_daily")
 with right:
     zfig = go.Figure()
     zfig.add_scatter(x=list(part["date"]), y=part["z"], name="z-score", mode="lines+markers",
@@ -106,7 +106,7 @@ with right:
                    fillcolor=BAND, opacity=0.18, line_width=0)
     zfig.update_layout(hovermode="x unified")
     zfig.update_yaxes(title="z-score vs previous days")
-    st.plotly_chart(style(zfig, 340), width="stretch")
+    sig.chart(NS, style(zfig, 340), key="listen:what_changed_z")
 st.caption("Shaded band = the reporting week. A z-score is blank until enough history exists.")
 with st.expander("Table view of the scores"):
     st.dataframe(part.sort_values("date", ascending=False), hide_index=True, width="stretch")

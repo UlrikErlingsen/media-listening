@@ -13,6 +13,7 @@ from listensignal.analysis import SENTIMENT_ORDER, TIMEZONE
 from listensignal.ui import signal_theme as sig
 from pages._ui import (
     MUTED,
+    NS,
     SENTIMENT_COLORS,
     SURFACE,
     data_banner,
@@ -73,7 +74,7 @@ with left:
                            hovertemplate="Week of %{x}: %{y} mentions<extra></extra>"))
     fig.update_xaxes(title="Week starting (Monday)", type="category")
     fig.update_yaxes(rangemode="tozero")
-    st.plotly_chart(style(fig, 320, legend=False), width="stretch")
+    sig.chart(NS, style(fig, 320, legend=False), key="listen:brand_weekly_mentions")
 with right:
     st.markdown("#### Tone per week")
     tone = go.Figure()
@@ -86,7 +87,7 @@ with right:
     tone.update_layout(barmode="stack")
     tone.update_yaxes(tickformat=".0%", range=[0, 1])
     tone.update_xaxes(title="Week starting (Monday)", type="category")
-    st.plotly_chart(style(tone, 320), width="stretch")
+    sig.chart(NS, style(tone, 320), key="listen:brand_weekly_tone")
 st.caption(scorer_caption(mine))
 
 left, right = st.columns(2)
@@ -113,7 +114,7 @@ with right:
                            textposition="outside", textfont=dict(color=MUTED),
                            hovertemplate="%{y}: %{x} mentions<extra></extra>"))
     bar.update_yaxes(gridcolor="rgba(0,0,0,0)")
-    st.plotly_chart(style(bar, 90 + 34 * len(sources), legend=False), width="stretch")
+    sig.chart(NS, style(bar, 90 + 34 * len(sources), legend=False), key="listen:brand_sources")
 
 
 def _latest(label: str) -> None:

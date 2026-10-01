@@ -83,7 +83,7 @@ if grain == "Daily":
         )
 fig.update_layout(hovermode="x unified")
 fig.update_yaxes(title="Mentions per " + ("week (ending Sunday)" if grain == "Weekly" else "day"), rangemode="tozero")
-st.plotly_chart(style(fig, 380), width="stretch")
+sig.chart(NS, style(fig, 380), key="listen:overview_volume")
 
 left, right = st.columns(2)
 with left:
@@ -100,12 +100,12 @@ with left:
     )
     bar.update_xaxes(tickformat=".0%", range=[0, max(0.1, float(sov["share"].max()) * 1.3)], gridcolor="rgba(0,0,0,0)")
     bar.update_yaxes(gridcolor="rgba(0,0,0,0)")
-    st.plotly_chart(style(bar, 90 + 46 * len(v.brands), legend=False), width="stretch")
+    sig.chart(NS, style(bar, 90 + 46 * len(v.brands), legend=False), key="listen:overview_share_of_voice")
     st.caption("Share of all brand mentions in the period. Coverage is limited to your configured feeds.")
 with right:
     st.markdown("### Sentiment mix")
     mix = sentiment_mix(v.mentions, v.brands)
-    st.plotly_chart(sentiment_bar(mix, v.brands), width="stretch")
+    sig.chart(NS, sentiment_bar(mix, v.brands), key="listen:overview_sentiment")
     st.caption(scorer_caption(v.mentions))
 
 st.markdown("### Top sources")
@@ -123,7 +123,7 @@ for brand in v.brands:
 src.update_layout(barmode="stack")
 src.update_yaxes(autorange="reversed", gridcolor="rgba(0,0,0,0)")
 src.update_xaxes(title="Brand mentions", title_font_color=MUTED)
-st.plotly_chart(style(src, 110 + 34 * len(sources)), width="stretch")
+sig.chart(NS, style(src, 110 + 34 * len(sources)), key="listen:overview_sources")
 
 with st.expander("Table view"):
     st.dataframe(sov, hide_index=True, column_config={"share": st.column_config.NumberColumn("share of voice", format="percent")})
