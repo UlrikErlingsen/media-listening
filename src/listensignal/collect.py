@@ -35,6 +35,7 @@ from .storage import (
     InsertResult,
     connect,
     count_articles,
+    count_known,
     fetch_state,
     insert_articles,
     record_fetch,
@@ -184,8 +185,13 @@ def collect_source(
         record_fetch(conn, source.name, source.url, status=f"HTTP {response.status}", success=False)
         return SourceOutcome(source.name, f"HTTP {response.status}")
     records = parse_feed(response.body, source.name, now=now)
+    known_before = count_known(conn, (record["url"] for record in records))
     inserted = insert_articles(conn, records)
     status = "ok" if records else "ok (feed had no usable entries)"
+    if records and state and state["last_success"] and known_before == 0:
+        # Feeds are a sliding window of the latest N items. If none of them was seen before, older items probably
+        # scrolled out of the feed between polls and were never collected.
+        status = f"ok, possible gap: all {len(records)} items were new since the last poll; poll this feed more often"
     record_fetch(conn, source.name, source.url, status=status, success=True, etag=response.etag,
                  modified=response.modified, seen=len(records), new=inserted.new)
     return SourceOutcome(source.name, status, len(records), inserted)
@@ -193,6 +199,8 @@ def collect_source(
 
 def score_pending(conn: Connection, mode: str = "auto", *, rescore: bool = False) -> tuple[int, str]:
     """Score every stored item that has no sentiment yet (or, with rescore, a different scorer's label)."""
+    if not rescore and unscored(conn).empty:
+        return 0, "Nothing new to score."  # do not load the model for nothing (scheduled runs)
     scorer, note = get_scorer(mode)
     pending = unscored(conn, rescore_scorer_other_than=scorer.name if rescore else None)
     if pending.empty:

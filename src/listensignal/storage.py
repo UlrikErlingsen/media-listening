@@ -157,6 +157,12 @@ def insert_articles(conn: sqlite3.Connection, records: Iterable[dict]) -> Insert
     return result
 
 
+def count_known(conn: sqlite3.Connection, urls: Iterable[str]) -> int:
+    """How many of these URLs (after normalization) are already stored."""
+    keys = {canonical_url(url) for url in urls if url}
+    return sum(1 for key in keys if conn.execute("SELECT 1 FROM articles WHERE url_key = ?", (key,)).fetchone())
+
+
 def count_articles(conn: sqlite3.Connection) -> int:
     return int(conn.execute("SELECT COUNT(*) FROM articles").fetchone()[0])
 

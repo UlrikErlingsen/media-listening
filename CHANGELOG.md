@@ -12,6 +12,9 @@ First version of **ListenSignal**, built from the v1 brief.
   that configuration cannot lower, conditional requests, a descriptive User-Agent and a 5 MB feed cap. It stores
   headline, feed snippet (max 400 characters), link, source and time, never full text, and de-duplicates by
   normalized URL and headline hash.
+- The collector reports a **possible gap** when every item in a feed is new since the last poll (feeds are a
+  sliding window; VG's holds only 10 items). `run_collect.bat` runs one collection for Windows Task Scheduler and
+  logs to `logs/collect.log`; NorBERT3 is loaded only when there is something new to score.
 - `sources.yaml` seeded with six feeds verified on 2026-10-01 (VG, E24, Aftenposten, Nettavisen, Kampanje, Teknisk
   Ukeblad). NRK, Dagbladet, DN, Google News (`hl=no&gl=NO`) and r/norge are seeded disabled with the reason;
   Finansavisen and Kom24 were dropped (no working feed).
@@ -39,5 +42,7 @@ First version of **ListenSignal**, built from the v1 brief.
 
 - Package under `src/listensignal/` with a public API and no Streamlit imports (enforced by a test). Storage
   sits behind `storage.py`.
+- Dependency floors verified by running the suite on Python 3.10 with pandas 2.0.3, numpy 1.26, plotly 5.19,
+  scikit-learn 1.3.2, feedparser 6.0.11 and Streamlit 1.51 (the lowest versions the pins allow).
 - pytest suite, ruff, CI for Python 3.10–3.13, Windows/macOS launchers, and a non-root Docker image with a
   health check.

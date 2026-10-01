@@ -54,6 +54,18 @@ def test_collect_source_stores_new_items_and_deduplicates():
     assert len(load_articles(conn)) == 2
 
 
+def test_possible_gap_is_reported_when_every_item_is_new_after_a_previous_poll():
+    conn = connect(":memory:")
+    record_fetch(conn, SOURCE.name, SOURCE.url, status="ok", success=True)
+    later = datetime.now(timezone.utc) + timedelta(hours=12)
+    web = FakeWeb()
+    outcome = collect_source(conn, SOURCE, min_interval_minutes=30, robots=RobotsCache(web), fetch=web, now=later)
+    assert outcome.status.startswith("ok, possible gap")
+    again = collect_source(conn, SOURCE, min_interval_minutes=30, robots=RobotsCache(web), fetch=web,
+                           now=later + timedelta(hours=1))
+    assert again.status == "ok"  # items overlap with the previous poll: no gap
+
+
 def test_poll_interval_floor_is_enforced():
     conn = connect(":memory:")
     record_fetch(conn, SOURCE.name, SOURCE.url, status="ok", success=True)
@@ -62,7 +74,7 @@ def test_poll_interval_floor_is_enforced():
     assert outcome.status.startswith("skipped: polled less than 30 min ago")
     assert web.calls == []
     later = datetime.now(timezone.utc) + timedelta(minutes=31)
-    assert collect_source(conn, SOURCE, min_interval_minutes=30, robots=RobotsCache(web), fetch=web, now=later).status == "ok"
+    assert collect_source(conn, SOURCE, min_interval_minutes=30, robots=RobotsCache(web), fetch=web, now=later).status.startswith("ok")
 
 
 def test_config_cannot_lower_the_30_minute_floor():

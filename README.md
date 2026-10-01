@@ -112,6 +112,22 @@ python -m listensignal.collect --sentiment lexicon      # force the fallback sco
 python -m listensignal.collect --rescore     # re-label items scored by a different scorer
 ```
 
+### Schedule collection
+
+Feeds are a sliding window of each outlet's latest items (VG's carries only 10), so ListenSignal sees only what
+is in the feed when it polls. Poll every 30–60 minutes for continuous coverage. When every item in a feed is new
+since the last poll, the collector reports a **possible gap**: older items probably rolled out of the feed
+unseen. Each run of `run_collect.bat` collects once and appends to `logs\collect.log`. To run it every 30 minutes
+with Windows Task Scheduler:
+
+```bash
+schtasks /Create /TN "ListenSignal collect" /SC MINUTE /MO 30 /TR "C:\path\to\media-listening\run_collect.bat"
+un_collect.bat\""
+```
+
+Remove the task again with `schtasks /Delete /TN "ListenSignal collect" /F`. The app's **Sources & brands** page
+also has a **Collect now** button.
+
 The database lives in `data/listensignal.db` (gitignored). It stores the headline, the feed snippet (capped at 400
 characters), the link, the source, the published time and the sentiment label with its scorer. Items are
 de-duplicated by normalized URL (tracking parameters removed) and by a hash of the normalized headline, so a wire
@@ -164,7 +180,7 @@ port. Or from a terminal:
 ```bash
 python -m venv .venv
 .venv\Scripts\activate            # macOS/Linux: source .venv/bin/activate
-python -m pip install -r requirements.txt
+python -m pip install -e .            # the package, its CLI commands and dependencies
 python -m streamlit run app.py
 ```
 
