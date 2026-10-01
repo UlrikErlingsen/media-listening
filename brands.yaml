@@ -1,0 +1,30 @@
+# ListenSignal brands. Replace this example with your own brand and competitors.
+#
+#   name:           display name (also used as an alias)
+#   role:           own | competitor
+#   aliases:        other spellings; matching is case-insensitive on word boundaries
+#   exclude:        phrases that are NOT the brand ("Tine Sundt" is a person, not the dairy)
+#   inflect:        match Norwegian suffixes such as -s, -en, -et, -a, -ene, -ane, -er, -ar and "Tine-sjefen" (default true)
+#   case_sensitive: true for brands that are also common words, e.g. "Kiwi" vs kiwi (default false)
+#
+# Example: the Norwegian dairy market (real public brand names, used only to illustrate the format).
+
+brands:
+  - name: Tine
+    role: own
+    aliases: [Tine, TINE, TINE SA]
+    exclude: [Tine Sundt, Tine Thing, Tine Wittler]
+    case_sensitive: true
+
+  - name: Q-Meieriene
+    role: competitor
+    aliases: [Q-Meieriene, Q-meieriet]
+
+  - name: Synnøve Finden
+    role: competitor
+    aliases: [Synnøve Finden, Synnøve]
+    exclude: [Synnøve Solbakken]
+
+  - name: Rørosmeieriet
+    role: competitor
+    aliases: [Rørosmeieriet, Røros-meieriet]

@@ -1,0 +1,105 @@
+# ListenSignal feed sources (RSS/Atom only in v1).
+#
+# Every URL below was fetched on 2026-10-01 with ListenSignal's User-Agent, returned a valid feed, and was
+# checked against the site's robots.txt with Python's robotparser.
+#
+# Feeds are seeded `enabled: false` when the publisher's robots.txt disallows them, reserves text and data
+# mining, or says media monitoring needs an agreement. Read the note and the publisher's terms before
+# switching one on. The collector also re-checks robots.txt itself on every run and skips any feed it
+# disallows, whatever this file says.
+#
+# Polling: at most once per 30 minutes per feed. A higher min_interval_minutes is allowed; a lower one is ignored.
+
+defaults:
+  min_interval_minutes: 30
+
+sources:
+  - name: VG
+    url: https://www.vg.no/rss/feed
+    enabled: true
+    verified: 2026-10-01
+    note: robots.txt allows the feed. VG reserves use of its content for AI-model training; ListenSignal trains nothing.
+
+  - name: E24
+    url: https://e24.no/rss2/
+    enabled: true
+    verified: 2026-10-01
+    note: robots.txt allows the feed. Same AI-training reservation as VG.
+
+  - name: Aftenposten
+    url: https://www.aftenposten.no/rss
+    enabled: true
+    verified: 2026-10-01
+    note: robots.txt allows the feed. Same AI-training reservation as VG. Many articles are paywalled; only the public feed text is stored.
+
+  - name: Nettavisen
+    url: https://www.nettavisen.no/service/rich-rss
+    enabled: true
+    verified: 2026-10-01
+    note: robots.txt allows the feed. Reserves use for AI-model training.
+
+  - name: Kampanje
+    url: https://kampanje.com/rss/
+    enabled: true
+    verified: 2026-10-01
+    note: Marketing and media trade press. robots.txt blocks AI crawlers and scrapers but allows other user agents.
+
+  - name: Teknisk Ukeblad
+    url: https://www.tu.no/rss
+    enabled: true
+    verified: 2026-10-01
+    note: robots.txt allows the feed.
+
+  # ---- Verified feeds that are seeded OFF. Read the note before enabling. -------------------------------
+
+  - name: NRK toppsaker
+    url: https://www.nrk.no/toppsaker.rss
+    enabled: false
+    verified: 2026-10-01
+    note: >-
+      Feed works and robots.txt allows it, but NRK's robots.txt states that NRK does not permit use of its
+      content for text and data mining without express written permission. Automated sentiment scoring is
+      text and data mining. Enable only with NRK's permission.
+
+  - name: NRK siste nytt
+    url: https://www.nrk.no/nyheter/siste.rss
+    enabled: false
+    verified: 2026-10-01
+    note: Same NRK text-and-data-mining reservation as above.
+
+  - name: Dagbladet
+    url: https://www.dagbladet.no/?lab_viewport=rss
+    enabled: false
+    verified: 2026-10-01
+    note: >-
+      Feed works and robots.txt allows it, but Dagbladet publishes the content signal
+      "search=yes, ai-train=no, ai-input=no". Running a language model over the text is arguably ai-input.
+
+  - name: DN
+    url: https://services.dn.no/api/feed/rss/
+    enabled: false
+    verified: 2026-10-01
+    note: >-
+      Feed works, but DN's robots.txt says media monitoring requires a valid agreement with Dagens
+      Næringsliv AS.
+
+  - name: Google News (no)
+    url: https://news.google.com/rss/search?q=%22Tine%22&hl=no&gl=NO&ceid=NO:no
+    enabled: false
+    kind: aggregator
+    verified: 2026-10-01
+    note: >-
+      Feed works (hl=no&gl=NO), but news.google.com/robots.txt disallows /rss for all user agents, so the
+      collector will skip it. Replace the q= term with your brand if Google's terms change.
+
+  - name: Reddit r/norge
+    url: https://www.reddit.com/r/norge/.rss
+    enabled: false
+    kind: forum
+    verified: 2026-10-01
+    note: >-
+      Feed works, but reddit.com/robots.txt disallows everything for all user agents and Reddit's Public
+      Content Policy restricts automated use. The collector will skip it.
+
+# Checked and dropped on 2026-10-01 (no working public feed found): Finansavisen (/rss, /feed, /rss.xml
+# return 404) and Kom24 (/rss, /feed, /rss.xml, /api/rss return 404).
