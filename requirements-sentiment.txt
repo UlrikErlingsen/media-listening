@@ -1,0 +1,5 @@
+# Optional: local NorBERT3 sentence sentiment (CPU). Install after requirements.txt.
+# CPU-only torch keeps the download smaller:
+#   python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.1
+transformers>=4.36,<5

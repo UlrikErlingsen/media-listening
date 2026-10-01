@@ -13,3 +13,5 @@ data/
 *.sqlite
 .DS_Store
 Thumbs.db
+exports/
+.claude/
