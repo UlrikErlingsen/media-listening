@@ -187,10 +187,10 @@ a {{ color:var(--sg-a700); }} a:hover {{ color:var(--sg-a800); }}
 [data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] small span {{ color:{c['sidebar_muted']} !important; }}
 [data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] {{
   background:rgba(249,244,237,.06); border:1.5px dashed var(--sg-a600); border-radius:32px; }}
-[data-testid="stSidebar"] button {{ background:rgba(249,244,237,.08); border:1px solid rgba(249,244,237,.22);
+[data-testid="stSidebar"] :is(.stButton,.stDownloadButton,.stLinkButton,.stFormSubmitButton) button {{ background:rgba(249,244,237,.08); border:1px solid rgba(249,244,237,.22);
   border-radius:999px; color:{c['sidebar_text']} !important; }}
-[data-testid="stSidebar"] button * {{ color:{c['sidebar_text']} !important; }}
-[data-testid="stSidebar"] button:hover {{ background:rgba(249,244,237,.14); border-color:var(--sg-a300); }}
+[data-testid="stSidebar"] :is(.stButton,.stDownloadButton,.stLinkButton,.stFormSubmitButton) button * {{ color:{c['sidebar_text']} !important; }}
+[data-testid="stSidebar"] :is(.stButton,.stDownloadButton,.stLinkButton,.stFormSubmitButton) button:hover {{ background:rgba(249,244,237,.14); border-color:var(--sg-a300); }}
 [data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] button {{ background:{c['paper']}; border-color:transparent; }}
 [data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] button * {{ color:{c['text']} !important; }}
 [data-testid="stSidebar"] [role="radiogroup"] label {{ border-radius:999px; padding:.3rem .8rem; margin:0; }}
