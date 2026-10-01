@@ -50,7 +50,7 @@ c3.metric(
 c4.metric("Spike days, last 7 days", f"{len(recent_spikes)}", help="See What changed for the rule and threshold.")
 
 st.markdown("### Mention volume")
-grain = st.segmented_control("Granularity", ["Weekly", "Daily"], default="Weekly", label_visibility="collapsed")
+grain = st.radio("Granularity", ["Weekly", "Daily"], horizontal=True, label_visibility="collapsed")
 counts = daily.loc[(daily.index >= v.start)]
 if grain == "Weekly":
     index = pd.to_datetime(pd.Index(counts.index))
