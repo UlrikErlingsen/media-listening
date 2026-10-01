@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">ListenSignal</title>
+  <desc id="desc">Norwegian media listening: mentions, share of voice and Norwegian-language sentiment, run locally.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1"><stop stop-color="#173C3A"/><stop offset="1" stop-color="#102C2A"/></linearGradient>
+  </defs>
+  <rect width="1200" height="360" rx="36" fill="url(#bg)"/>
+  <circle cx="1085" cy="-10" r="210" fill="none" stroke="#83D2B4" stroke-width="64" opacity=".11"/>
+  <circle cx="80" cy="380" r="155" fill="#F2C66D" opacity=".08"/>
+  <g transform="translate(74 74)">
+    <rect width="114" height="114" rx="29" fill="#173C3A" stroke="#83D2B4" stroke-width="3"/>
+    <g fill="none" stroke="#83D2B4" stroke-width="4.5" stroke-linecap="round">
+      <path d="M43 36a31 31 0 0 1 0 42" opacity=".45"/>
+      <path d="M33 45a17 17 0 0 1 0 24" opacity=".75"/>
+    </g>
+    <circle cx="26" cy="57" r="6" fill="#D95B40"/>
+    <g stroke="#F8F5ED" stroke-width="7" stroke-linecap="round"><path d="M62 69v9"/><path d="M75 59v19"/></g>
+    <path d="M88 36v42" stroke="#F2C66D" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <text x="222" y="136" fill="#F8F5ED" font-family="Inter,Arial,sans-serif" font-size="68" font-weight="800" letter-spacing="-3">Listen<tspan fill="#F2C66D">Signal</tspan></text>
+  <text x="226" y="192" fill="#D7E3DF" font-family="Inter,Arial,sans-serif" font-size="25">Who is talking about the brand in Norwegian media — and in what tone?</text>
+  <g font-family="Inter,Arial,sans-serif" font-size="17" font-weight="700">
+    <rect x="226" y="233" width="196" height="42" rx="21" fill="#ffffff" opacity=".08"/><text x="251" y="260" fill="#F8F5ED">NORWEGIAN FEEDS</text>
+    <rect x="436" y="233" width="176" height="42" rx="21" fill="#ffffff" opacity=".08"/><text x="461" y="260" fill="#F8F5ED">LOCAL NORBERT3</text>
+    <rect x="626" y="233" width="196" height="42" rx="21" fill="#ffffff" opacity=".08"/><text x="651" y="260" fill="#F8F5ED">HONEST SPIKES</text>
+  </g>
+</svg>

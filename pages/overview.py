@@ -1,0 +1,122 @@
+"""Overview: volume over time, share of voice, sentiment mix, top sources."""
+
+from __future__ import annotations
+
+from datetime import timedelta
+
+import pandas as pd
+import plotly.graph_objects as go
+import streamlit as st
+
+from listensignal import daily_counts, detect_spikes, net_tone, sentiment_mix, share_of_voice, top_sources
+from pages._ui import INK_2, MUTED, SURFACE, data_banner, empty_state, scorer_caption, sentiment_bar, style, view
+
+v = view()
+
+st.markdown(
+    """
+    <section class="ps-hero">
+      <div class="ps-eyebrow">NORWEGIAN MEDIA LISTENING</div>
+      <h1>Who is talking about the brand — <em>and in what tone?</em></h1>
+      <p>Mentions of your brand and competitors in Norwegian news feeds, with share of voice, local Norwegian
+      sentiment (NorBERT3 or a transparent lexicon) and spikes flagged by a rule you can read.</p>
+      <div class="ps-pills"><span class="ps-pill">Bokmål & Nynorsk matching</span><span class="ps-pill">exclusion terms</span>
+      <span class="ps-pill">share of voice</span><span class="ps-pill">sentence-level sentiment</span>
+      <span class="ps-pill">z-score spikes</span><span class="ps-pill">weekly pulse export</span></div>
+    </section>
+    """,
+    unsafe_allow_html=True,
+)
+data_banner(v)
+if empty_state(v):
+    st.stop()
+
+own = [b.name for b in v.ws.brands if b.role == "own"]
+focus = own[0] if own else v.brands[0]
+sov = share_of_voice(v.mentions, v.brands)
+daily = daily_counts(v.ws.mentions, v.brands, v.start - timedelta(days=28), v.end)
+spikes = detect_spikes(daily, coverage_start=v.ws.coverage_start)
+recent_spikes = spikes.loc[spikes["date"] > v.end - timedelta(days=7)]
+focus_tone = net_tone(v.mentions.loc[v.mentions["brand"] == focus])
+
+c1, c2, c3, c4 = st.columns(4)
+c1.metric("Brand mentions", f"{len(v.mentions):,}", help="An item naming two brands counts once for each.")
+c2.metric(f"{focus} share of voice", f"{float(sov.loc[sov['brand'] == focus, 'share'].iat[0]):.0%}")
+c3.metric(
+    f"{focus} net tone",
+    "—" if focus_tone is None else f"{focus_tone:+.2f}",
+    help="(positive − negative) / scored mentions, from −1 to +1. Headline tone, not tone towards the brand.",
+)
+c4.metric("Spike days, last 7 days", f"{len(recent_spikes)}", help="See What changed for the rule and threshold.")
+
+st.markdown("### Mention volume")
+grain = st.segmented_control("Granularity", ["Weekly", "Daily"], default="Weekly", label_visibility="collapsed")
+counts = daily.loc[(daily.index >= v.start)]
+if grain == "Weekly":
+    index = pd.to_datetime(pd.Index(counts.index))
+    counts = counts.set_axis(index).resample("W-SUN").sum()
+    counts.index = counts.index.date
+fig = go.Figure()
+for brand in v.brands:
+    fig.add_scatter(
+        x=list(counts.index), y=counts[brand], name=brand, mode="lines+markers",
+        line=dict(color=v.colors[brand], width=2), marker=dict(size=8, line=dict(color=SURFACE, width=2)),
+        hovertemplate=f"{brand}: %{{y}}<extra></extra>",
+    )
+if grain == "Daily":
+    marked = spikes.loc[spikes["date"] >= v.start]
+    if not marked.empty:
+        fig.add_scatter(
+            x=list(marked["date"]), y=marked["count"], mode="markers", name="Spike day",
+            marker=dict(symbol="diamond-open", size=15, color=INK_2, line=dict(width=2)),
+            customdata=marked[["brand", "z"]], hovertemplate="Spike · %{customdata[0]}: %{y} (z = %{customdata[1]:.1f})<extra></extra>",
+        )
+fig.update_layout(hovermode="x unified")
+fig.update_yaxes(title="Mentions per " + ("week (ending Sunday)" if grain == "Weekly" else "day"), rangemode="tozero")
+st.plotly_chart(style(fig, 380), width="stretch")
+
+left, right = st.columns(2)
+with left:
+    st.markdown("### Share of voice")
+    ordered = sov.iloc[::-1]
+    bar = go.Figure(
+        go.Bar(
+            y=ordered["brand"], x=ordered["share"], orientation="h",
+            marker=dict(color=[v.colors[b] for b in ordered["brand"]], cornerradius=4),
+            text=[f"{s:.0%} · {n}" for s, n in zip(ordered["share"], ordered["mentions"])], textposition="outside",
+            textfont=dict(color=INK_2), customdata=ordered["mentions"],
+            hovertemplate="%{y}: %{x:.1%} (%{customdata} mentions)<extra></extra>",
+        )
+    )
+    bar.update_xaxes(tickformat=".0%", range=[0, max(0.1, float(sov["share"].max()) * 1.3)], gridcolor="rgba(0,0,0,0)")
+    bar.update_yaxes(gridcolor="rgba(0,0,0,0)")
+    st.plotly_chart(style(bar, 90 + 46 * len(v.brands), legend=False), width="stretch")
+    st.caption("Share of all brand mentions in the period. Coverage is limited to your configured feeds.")
+with right:
+    st.markdown("### Sentiment mix")
+    mix = sentiment_mix(v.mentions, v.brands)
+    st.plotly_chart(sentiment_bar(mix, v.brands), width="stretch")
+    st.caption(scorer_caption(v.mentions))
+
+st.markdown("### Top sources")
+sources = top_sources(v.mentions, 10)
+by_source = v.mentions.groupby(["source", "brand"]).size().unstack("brand", fill_value=0).reindex(
+    index=sources["source"], columns=v.brands, fill_value=0
+)
+src = go.Figure()
+for brand in v.brands:
+    src.add_bar(
+        y=by_source.index, x=by_source[brand], name=brand, orientation="h",
+        marker=dict(color=v.colors[brand], line=dict(color=SURFACE, width=2)),
+        hovertemplate="%{y} · " + brand + ": %{x}<extra></extra>",
+    )
+src.update_layout(barmode="stack")
+src.update_yaxes(autorange="reversed", gridcolor="rgba(0,0,0,0)")
+src.update_xaxes(title="Brand mentions", title_font_color=MUTED)
+st.plotly_chart(style(src, 110 + 34 * len(sources)), width="stretch")
+
+with st.expander("Table view"):
+    st.dataframe(sov, hide_index=True, column_config={"share": st.column_config.NumberColumn("share of voice", format="percent")})
+    st.dataframe(mix.pivot(index="brand", columns="sentiment", values="mentions").reindex(v.brands))
+    st.dataframe(counts.rename_axis("period"))
+    st.dataframe(sources, hide_index=True)
