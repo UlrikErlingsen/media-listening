@@ -73,3 +73,19 @@ def test_app_source_keeps_suite_shell_and_accessibility():
     assert "USER listensignal" in docker and "HEALTHCHECK" in docker
     launcher = (ROOT / "run_app.bat").read_text(encoding="utf-8")
     assert "--browser.gatherUsageStats=false" in launcher and "LISTENSIGNAL_PORT" in launcher
+
+
+def test_readme_follows_suite_structure_and_states_limits():
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for heading in [
+        "## Read this first", "## Try the fictional demo in three minutes", "## Sources and brands", "## Methods",
+        "## Weekly brand pulse", "## Run locally", "## Privacy", "## Development checks",
+        "## Relationship to the Signal suite", "## Academic independence and originality", "## License",
+    ]:
+        assert heading in readme, heading
+    assert "**The demo is fictional.**" in readme
+    assert "has not been measured" in readme
+    for name in ["PRIVACY.md", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md"]:
+        assert (ROOT / name).exists()
+    for image in ["screenshot-overview-charts.png", "screenshot-spikes.png"]:
+        assert (ROOT / "assets" / image).exists() and f"assets/{image}" in readme
