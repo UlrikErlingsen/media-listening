@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import os
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -10,7 +11,16 @@ import yaml
 
 from .errors import DataProblem
 
-ROOT = Path(__file__).resolve().parents[2]
+
+def _home() -> Path:
+    """Project folder holding brands.yaml, sources.yaml and data/: LISTENSIGNAL_HOME, the repo checkout, or cwd."""
+    if os.getenv("LISTENSIGNAL_HOME"):
+        return Path(os.environ["LISTENSIGNAL_HOME"]).expanduser().resolve()
+    checkout = Path(__file__).resolve().parents[2]
+    return checkout if (checkout / "sources.yaml").exists() else Path.cwd()
+
+
+ROOT = _home()
 DEFAULT_BRANDS = ROOT / "brands.yaml"
 DEFAULT_SOURCES = ROOT / "sources.yaml"
 DEFAULT_DB = ROOT / "data" / "listensignal.db"
