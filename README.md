@@ -217,9 +217,13 @@ technical details for unexpected errors. Or from a terminal:
 ```bash
 python -m venv .venv
 .venv\Scripts\activate            # macOS/Linux: source .venv/bin/activate
-python -m pip install -e .            # the package, its CLI commands and dependencies
+python -m pip install -e ".[ui]"      # the package, its CLI commands and the dashboard (Streamlit, Plotly)
 python -m streamlit run app.py
 ```
+
+`pip install -e .` without `[ui]` installs only the UI-free core and the `listensignal-collect` /
+`listensignal-pulse` commands, for example on a machine that only runs scheduled collection.
+`requirements.txt` (used by the launchers and Docker) installs everything.
 
 ### Optional: local NorBERT3 sentiment
 
@@ -241,6 +245,14 @@ docker run --rm -p 8595:8595 -v ./data:/app/data listensignal
 ```
 
 Then open http://127.0.0.1:8595. The container runs as a non-root user.
+
+### In Signal Hub
+
+[Signal Hub](https://github.com/UlrikErlingsen/signal-hub) runs Listen Signal next to the other Signal apps by
+calling `listensignal.ui.render()` with `SIGNAL_HUB=1`. In that mode Listen Signal shows the bundled fictional demo
+only: there is no switch to a local database, live feed collection is off (the app says so), it makes no network
+requests, writes no files, and scores sentiment with the lexicon fallback. Brand lists edited in the app stay in the
+browser session. Run Listen Signal locally to collect real feeds.
 
 ## Privacy
 
@@ -266,14 +278,18 @@ The tests cover:
 - the lexicon fallback and scorer labelling (NorBERT3 too, when installed);
 - demo determinism, topics, the pulse export and formula-injection protection;
 - every Streamlit page and the shared Signal shell;
-- an architecture test that fails if anything under `src/` outside `src/listensignal/ui/` imports Streamlit.
+- an architecture test that fails if anything under `src/` outside `src/listensignal/ui/` imports Streamlit;
+- the Signal Hub contract: `render()` draws every page from the packaged files alone with namespaced widget keys,
+  and in hub mode (`SIGNAL_HUB=1`) writes no file and makes no network call.
 
 ### Architecture
 
 All logic, data models and storage live in `src/listensignal/` and never import Streamlit, so **Signal Hub** can
-reuse them. The only exception is `src/listensignal/ui/`, which holds the shared Signal theme synced from Signal Hub
-(`from listensignal.ui import signal_theme as sig`). The public API is in `src/listensignal/__init__.py`, and SQLite
-sits behind `storage.py`. Streamlit pages live in `app.py` and `pages/`.
+reuse them. The only exception is `src/listensignal/ui/`: the shared Signal theme synced from Signal Hub
+(`from listensignal.ui import signal_theme as sig`), the page functions (`ui/pages/`), and `render()` with
+`APP_INFO`, the Signal Hub entry point. The public API is in `src/listensignal/__init__.py`, and SQLite sits behind
+`storage.py`. The standalone `app.py` keeps one URL per page with `st.navigation`; `pages/*.py` are thin wrappers
+around the same page functions.
 
 ## Where this fits in Signal
 

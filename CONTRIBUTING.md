@@ -9,7 +9,9 @@ Contributions should keep Listen Signal's boundaries:
   do not tune on the test split.
 - **Explainable rules.** Spike, matching and topic rules must stay readable and be shown in the app.
 - **UI-free package.** Logic goes in `src/listensignal/` and must not import Streamlit, except inside
-  `src/listensignal/ui/` (the synced Signal theme). Streamlit pages go in `app.py` and `pages/`. Storage changes
+  `src/listensignal/ui/` (the synced Signal theme, the page functions in `ui/pages/` and `render()` for Signal Hub;
+  `app.py` and `pages/` are thin wrappers). Namespace every session-state and widget key with `k()`, and keep
+  `SIGNAL_HUB=1` free of disk writes and network calls. Storage changes
   go through `storage.py`.
 - **Shared look.** Use the Signal theme (`from listensignal.ui import signal_theme as sig`) instead of custom CSS
   or hard-coded colours. Do not edit the synced theme files; they are copied from Signal Hub.

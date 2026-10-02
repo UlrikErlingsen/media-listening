@@ -61,7 +61,9 @@ State on screen and in README that demo mentions are fictional.
 - Python 3.10+, Streamlit `app.py`, package `src/listensignal/`, tests in `tests/`.
 - **No Streamlit import anywhere under `src/listensignal/` except `src/listensignal/ui/`** (enforced by
   `tests/test_architecture.py`). Analysis, storage and exports stay UI-free; Streamlit pages live in
-  `app.py` and `pages/`.
+  `src/listensignal/ui/pages/` (one `show()` per page; `listensignal.ui.render()` is the Signal Hub entry point,
+  with every session/widget key namespaced `listen:` and a `SIGNAL_HUB=1` mode that uses the fictional demo only,
+  writes nothing and makes no network calls). `app.py` and `pages/` are thin standalone wrappers.
 - Look and feel comes from the synced Signal theme: `from listensignal.ui import signal_theme as sig`, key
   `listen` (Market family). Never edit the synced files (`src/listensignal/ui/signal_theme.py`,
   `src/listensignal/ui/assets/marks/*`, `.streamlit/config.toml`, `assets/listensignal-*.png|svg`); change
