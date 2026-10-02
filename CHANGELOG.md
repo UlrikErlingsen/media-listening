@@ -1,6 +1,29 @@
 # Changelog
 
-## [Unreleased]
+## [1.0.0] - 2026-10-02
+
+First public release of **Listen Signal**, built from the v1 brief.
+
+### Signal Hub
+
+- `listensignal.ui` exposes `APP_INFO` and `render()`, the Signal Hub entry point. `render()` draws the theme,
+  sidebar lockup, a namespaced page radio, the masthead, the selected page (errors shown as the friendly message)
+  and the footer, and never calls `st.set_page_config` or `st.navigation`.
+- The page code moved from `pages/` into the package (`src/listensignal/ui/pages/`, one `show()` per page, shared
+  helpers in `ui/common.py`), so an installed package has it. The standalone `app.py` keeps its `st.navigation`
+  layout and URLs; `pages/*.py` are thin wrappers around the same functions.
+- Every session-state and widget key is namespaced `listen:` through one `k()` helper. Pages return early instead
+  of calling `st.stop()`, so the footer always renders.
+- Hub mode (`SIGNAL_HUB=1`): the bundled fictional demo only, no data-source switch, no local database, no collect
+  button, no NorBERT3 check, no network requests and no file writes; the app says that live collection is off in
+  Signal Hub. The feed list shown there comes from a packaged copy of `sources.yaml` (`seed_sources.yaml`, kept
+  identical by a test). Session brand lists stay in memory.
+- `streamlit` and `plotly` moved to a new `ui` extra (also in `test`); `requirements.txt` still installs
+  everything. `CITATION.cff` added.
+- New `tests/test_hub_contract.py`: `APP_INFO`, no Streamlit/Plotly outside `ui/`, a fresh-interpreter core import,
+  no `set_page_config`/`navigation`/`stop` in `ui/`, `render()` from a script on every page with namespaced keys,
+  and hub-mode tests with network and database calls rigged to fail, including a run from the packaged files alone
+  in an empty working directory and home directory that must stay empty.
 
 ### Signal brand refresh
 
@@ -19,10 +42,6 @@
   suite footer). Bug-report and feature-request issue templates added.
 - Rule change: Streamlit may be imported under `src/listensignal/ui/` only; the rest of the package stays UI-free
   (architecture test updated, plus a test that the core imports without Streamlit).
-
-## 1.0.0 — unreleased (local build, 2026-10-01)
-
-First version of **ListenSignal**, built from the v1 brief.
 
 ### Listening
 

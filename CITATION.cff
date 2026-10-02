@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using this metadata. The Listen Signal name has not been screened and is provisional."
+title: "Listen Signal: local-first media listening for Norwegian-language sources"
+type: software
+authors:
+  - family-names: Erlingsen
+    given-names: Ulrik
+version: 1.0.0
+date-released: 2026-10-02
+license: AGPL-3.0-or-later
+repository-code: "https://github.com/UlrikErlingsen/media-listening"
+abstract: "An open, local-first application that counts brand and competitor mentions in Norwegian RSS/Atom feeds, with Bokmål/Nynorsk alias matching, local sentence-level sentiment (NorBERT3 or a lexicon fallback), share of voice, z-score spike flags, topic groups and a weekly brand pulse export."
+keywords:
+  - media monitoring
+  - social listening
+  - share of voice
+  - norwegian
+  - sentiment analysis

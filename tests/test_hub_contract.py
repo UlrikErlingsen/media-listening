@@ -331,3 +331,12 @@ def test_hub_mode_renders_from_the_packaged_files_and_writes_nothing(tmp_path: P
     assert list(work.rglob("*")) == [], "files written to the working directory"
     assert list(home.rglob("*")) == [], "files written to the home / app-data directories"
     assert sorted(p.relative_to(site) for p in site.rglob("*")) == shipped, "files written inside the package"
+
+
+def test_release_metadata_agrees_on_the_version() -> None:
+    citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    assert f"\nversion: {__version__}\n" in citation
+    assert f'\nversion = "{__version__}"\n' in pyproject
+    assert f"\n## [{__version__}] - " in changelog and "unreleased" not in changelog.lower()
