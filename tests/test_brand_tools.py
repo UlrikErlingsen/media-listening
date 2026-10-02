@@ -101,7 +101,7 @@ def test_session_brand_editor_rematches_every_page():
     app = _app()
     app.switch_page("pages/sources.py")
     app.run()
-    app.text_area(key="custom_brands_demo_editor").set_value(
+    app.text_area(key="listen:custom_brands_demo_editor").set_value(
         "brands:\n  - name: Turisme\n    role: own\n    aliases: [turistene, hotellene]\n"
     ).run()
     next(b for b in app.button if b.label == "Apply for this session").click().run()

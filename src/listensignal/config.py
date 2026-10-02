@@ -24,6 +24,9 @@ ROOT = _home()
 DEFAULT_BRANDS = ROOT / "brands.yaml"
 DEFAULT_SOURCES = ROOT / "sources.yaml"
 DEFAULT_DB = ROOT / "data" / "listensignal.db"
+# Copy of the seeded sources.yaml that ships inside the package (kept identical by a test). Signal Hub shows this
+# list instead of reading a project folder on the server.
+SEED_SOURCES = Path(__file__).resolve().parent / "seed_sources.yaml"
 
 # The brief caps polling at once every 30 minutes per feed. The collector never goes below this.
 MIN_POLL_MINUTES = 30

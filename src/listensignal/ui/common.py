@@ -1,4 +1,8 @@
-"""Shared Streamlit helpers for Listen Signal pages. All analysis lives in the listensignal package."""
+"""Shared Streamlit helpers for Listen Signal pages. All analysis lives in the UI-free listensignal package.
+
+Every session-state key and every explicit widget key goes through ``k()``, so Listen Signal can share one
+Streamlit session with the other apps in Signal Hub.
+"""
 
 from __future__ import annotations
 
@@ -26,7 +30,14 @@ from listensignal.analysis import SENTIMENT_ORDER
 from listensignal.config import DEFAULT_BRANDS, DEFAULT_DB
 from listensignal.ui import signal_theme as sig
 
-NS = "listen"  # signal_theme key: Listen Signal, Market family
+NS = "listen"  # signal_theme key and Signal Hub slug: Listen Signal, Market family
+
+
+def k(name: str) -> str:
+    """Namespace a session-state or widget key with the app slug, so apps can share one Hub session."""
+    return f"{NS}:{name}"
+
+
 # Categorical brand colours from the Signal colorway (own family first). Colour follows the brand's position in
 # brands.yaml, never its rank, so filtering never repaints a brand; brands beyond the palette share the neutral.
 BRAND_PALETTE = tuple(sig.colorway(NS)[:-1])
@@ -37,13 +48,32 @@ SENTIMENT_COLORS = {"Positive": sig.DIVERGING[1], "Neutral": sig.CORE["soft"], "
                     "Negative": sig.DIVERGING[5], "Unscored": sig.CORE["surface"]}
 INK, MUTED, BAND, SURFACE = sig.CORE["text"], sig.CORE["muted"], sig.CORE["soft"], sig.CORE["paper"]
 PERIODS = {"Last 4 weeks": 28, "Last 12 weeks": 84, "All data": None}
-# Hosted demo: only the fictional data, no database and no outbound feed requests.
-PUBLIC_DEMO = os.getenv("LISTENSIGNAL_PUBLIC_DEMO") == "1"
+HUB_NOTE = "Live feed collection is off in Signal Hub; run Listen Signal locally to collect real feeds."
+PUBLIC_DEMO_NOTE = "Public demo: fictional data only. Run Listen Signal locally to collect real feeds."
+
+
+def hub_mode() -> bool:
+    """Running inside Signal Hub: fictional demo only, no files, no database, no outbound requests."""
+    return os.environ.get("SIGNAL_HUB") == "1"
+
+
+def public_demo() -> bool:
+    """Hosted demo (LISTENSIGNAL_PUBLIC_DEMO=1): only the fictional data, no database and no feed requests."""
+    return os.getenv("LISTENSIGNAL_PUBLIC_DEMO") == "1"
+
+
+def demo_only() -> bool:
+    """True when the local database, the project files and live collection must stay untouched."""
+    return hub_mode() or public_demo()
+
+
+def demo_only_note() -> str:
+    return HUB_NOTE if hub_mode() else PUBLIC_DEMO_NOTE
 
 
 @st.cache_data(show_spinner="Building the fictional demo …")
 def _demo() -> Workspace:
-    return demo_workspace()
+    return demo_workspace()  # generated in memory from code; reads and writes nothing
 
 
 @st.cache_data(show_spinner="Reading the local database …")
@@ -56,7 +86,7 @@ def _mtime(path: Path) -> float:
 
 
 def db_count() -> int:
-    return database_has_items(DEFAULT_DB)
+    return 0 if demo_only() else database_has_items(DEFAULT_DB)
 
 
 @st.cache_data(show_spinner="Matching your brands …", max_entries=8)
@@ -64,25 +94,29 @@ def _custom(mode: str, base_mtime: float, _base: Workspace, brands_yaml: str) ->
     return _base.with_brands(parse_brands_yaml(brands_yaml))
 
 
+def data_mode() -> str:
+    if demo_only():
+        return "demo"
+    return st.session_state.get(k("data_mode"), "demo")
+
+
 def base_workspace() -> Workspace:
-    if st.session_state.get("data_mode", "demo") == "db":
+    if data_mode() == "db":
         return _database(str(DEFAULT_DB), str(DEFAULT_BRANDS), _mtime(DEFAULT_DB), _mtime(DEFAULT_BRANDS))
     return _demo()
 
 
 def custom_brands_key() -> str:
-    return f"custom_brands_{st.session_state.get('data_mode', 'demo')}"
+    return k(f"custom_brands_{data_mode()}")
 
 
 def workspace() -> Workspace:
     """The selected data, re-matched with this session's custom brand list if the visitor set one."""
-    if PUBLIC_DEMO:
-        st.session_state["data_mode"] = "demo"
     base = base_workspace()
     custom = st.session_state.get(custom_brands_key())
     if not custom:
         return base
-    mode = st.session_state.get("data_mode", "demo")
+    mode = data_mode()
     return _custom(mode, _mtime(DEFAULT_DB) if mode == "db" else 0.0, base, custom)
 
 
@@ -111,13 +145,31 @@ def view() -> View:
         end = date.today()
     else:
         end = max(mentions["date"])
-    days = PERIODS.get(st.session_state.get("period", "Last 12 weeks"))
+    days = PERIODS.get(st.session_state.get(k("period"), "Last 12 weeks"))
     if days is None:
         start = min(mentions["date"]) if not mentions.empty else end - timedelta(days=27)
     else:
         start = end - timedelta(days=days - 1)
     scoped = mentions.loc[(mentions["date"] >= start) & (mentions["date"] <= end)] if not mentions.empty else mentions
     return View(ws, scoped, start, end, ws.brand_names, brand_colors(ws.brand_names))
+
+
+def sidebar_data_controls() -> None:
+    """Data source and period pickers plus the workspace summary, drawn in the sidebar on every rerun."""
+    with st.sidebar:
+        if demo_only():
+            st.caption(("Signal Hub: fictional demo only. " if hub_mode() else "") + demo_only_note())
+        else:
+            stored = db_count()
+            modes = {"demo": "Fictional demo", "db": f"My collected data ({stored:,} items)"}
+            st.radio("Data", list(modes), format_func=modes.get, key=k("data_mode"))
+        st.selectbox("Period", list(PERIODS), index=1, key=k("period"))
+        ws = workspace()
+        st.caption(f"{len(ws.brands)} brands · {len(ws.articles):,} feed items · {len(ws.mentions):,} brand mentions")
+        if hub_mode():
+            st.caption("Signal Hub · in memory only · no telemetry · no accounts · no external AI calls · no network")
+        else:
+            st.caption("Local mode · no telemetry · no accounts · no external AI calls · network only for your RSS feeds")
 
 
 def data_banner(v: View) -> None:
@@ -196,6 +248,12 @@ def show_error(exc: Exception) -> None:
     if not isinstance(exc, (DataProblem, ValueError)) and os.getenv("LISTENSIGNAL_DEBUG") == "1":
         with st.expander("Technical details"):
             st.code("".join(traceback.format_exception(exc)))
+
+
+def item_texts(frame: pd.DataFrame) -> list[str]:
+    """Headline + snippet once per feed item (an item naming two brands appears twice in the mention table)."""
+    unique = frame.drop_duplicates("article_id")
+    return (unique["title"].fillna("") + ". " + unique["summary"].fillna("")).tolist()
 
 
 SENTIMENT_NOTE = (

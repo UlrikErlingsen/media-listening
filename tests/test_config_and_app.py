@@ -72,10 +72,13 @@ def test_what_changed_shows_rule_and_spike():
 
 def test_app_uses_shared_signal_theme_and_keeps_accessibility():
     standalone = (ROOT / "app.py").read_text(encoding="utf-8")
-    pages = "\n".join(path.read_text(encoding="utf-8") for path in sorted((ROOT / "pages").glob("*.py")))
+    # The page code lives in the package (listensignal.ui), so Signal Hub's render() and app.py share it.
+    pages = "\n".join(path.read_text(encoding="utf-8") for path in sorted(UI.rglob("*.py"))
+                      if path.name not in ("signal_theme.py", "signal_font.py"))
     theme = (UI / "signal_theme.py").read_text(encoding="utf-8")
     assert 'st.set_page_config(**sig.page_config(NS, "Norwegian media listening"))' in standalone
     assert "sig.apply(NS)" in standalone and "show_error" in standalone
+    assert "sig.apply(NS)" in pages and "show_error" in pages  # render() in listensignal.ui.app
     assert "from listensignal.ui import signal_theme as sig" in standalone
     assert 'NS = "listen"' in pages and "sig.template(NS)" in pages
     assert "sig.chart(NS, " in pages and "st.plotly_chart" not in pages  # theme=None + per-app template
@@ -95,7 +98,7 @@ def test_app_uses_shared_signal_theme_and_keeps_accessibility():
 
 
 def test_brand_palette_comes_from_the_signal_theme():
-    import pages._ui as ui
+    import listensignal.ui.common as ui
     from listensignal.ui import signal_theme as sig
 
     assert sig.app(ui.NS)["name"] == "Listen Signal" and sig.app(ui.NS)["family"] == "market"
@@ -145,18 +148,9 @@ def test_issue_templates_use_display_name_and_keep_data_safety():
 
 
 def test_public_demo_mode_hides_collection(monkeypatch):
-    monkeypatch.setenv("LISTENSIGNAL_PUBLIC_DEMO", "1")
-    import importlib
-
-    import pages._ui as ui
-
-    importlib.reload(ui)
-    try:
-        app = _run("sources")
-        assert not app.exception, [e.value for e in app.exception]
-        assert not app.sidebar.radio  # no data-source switch
-        assert not [b for b in app.button if b.label == "Fetch enabled feeds"]
-        assert any("switched off in this public demo" in str(i.value) for i in app.info)
-    finally:
-        monkeypatch.delenv("LISTENSIGNAL_PUBLIC_DEMO")
-        importlib.reload(ui)
+    monkeypatch.setenv("LISTENSIGNAL_PUBLIC_DEMO", "1")  # read on every rerun, so no module reload is needed
+    app = _run("sources")
+    assert not app.exception, [e.value for e in app.exception]
+    assert not app.sidebar.radio  # no data-source switch
+    assert not [b for b in app.button if b.label == "Fetch enabled feeds"]
+    assert any("switched off in this public demo" in str(i.value) for i in app.info)
