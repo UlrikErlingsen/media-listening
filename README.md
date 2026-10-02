@@ -310,9 +310,10 @@ The maintained public suite is listed at [ulrikerlingsen.com](https://ulrikerlin
   https://huggingface.co/ltg/norbert3-base_sentence-sentiment
 - Samuel, D., Kutuzov, A., Touileb, S., Velldal, E., Øvrelid, L., Rønningstad, E., Sigdel, E., & Palatkina, A.
   (2023). NorBench – A Benchmark for Norwegian Language Models. *Proceedings of the 24th Nordic Conference on
-  Computational Linguistics (NoDaLiDa)*.
+  Computational Linguistics (NoDaLiDa)*, 618–633. https://aclanthology.org/2023.nodalida-1.61/
 - Øvrelid, L., Mæhlum, P., Barnes, J., & Velldal, E. (2020). A Fine-grained Sentiment Dataset for Norwegian.
-  *Proceedings of the 12th Language Resources and Evaluation Conference (LREC)*. The NoReC_sentence data used in
+  *Proceedings of the 12th Language Resources and Evaluation Conference (LREC)*, 5025–5033.
+  https://aclanthology.org/2020.lrec-1.618/ The NoReC_sentence data used in
   [the sentiment evaluation](docs/sentiment-evaluation.md) are derived from this dataset (CC BY-NC 4.0).
 
 ## Originality and license
