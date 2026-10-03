@@ -68,12 +68,14 @@ open-ended text use **[Text Signal](https://github.com/UlrikErlingsen/open-text-
 
 ## Try the demo in three minutes
 
-1. Start the app (`run_app.bat` on Windows). The fictional demo is already loaded and works offline.
+1. Start the app (`run_app.bat` on Windows). The fictional demo is already loaded and works offline. Its headlines
+   are in Norwegian because Listen Signal analyses Norwegian-language media; everything the app says about them is
+   in English.
 2. **Overview:** weekly mention volume for three invented drinks brands — *Fjellbrus* (own brand), *Kystkraft* and
    *Nordlys Energi* — with share of voice, sentiment mix and top sources.
 3. **What changed:** the final demo week holds an engineered spike, a fictional Fjellbrus product recall. Its
    knock-on stories also lift a competitor, Nordlys Energi, two days later. Read the plain-language notes, the
-   z-score chart with its threshold line, and the rising terms (*tilbakekaller …*).
+   z-score chart with its threshold line, and the rising terms (*tilbakekaller …*, “recalls”).
 4. **Brand profile:** one brand's weekly volume and tone, the words that set its coverage apart, its sources and
    its latest positive and negative items.
 5. **Mentions:** filter by brand, tone or source, and see which alias text triggered each match.
@@ -166,6 +168,27 @@ characters), the link, the source, the published time and the sentiment label wi
 de-duplicated by normalized URL (tracking parameters removed) and by a hash of the normalized headline, so a wire
 story published by several outlets counts once.
 
+### Data limits
+
+Run on your own computer (standalone, a local Signal Hub, or an internal company deployment), Listen Signal has **no
+built-in limit** on the number of collected items, tracked brands, or the text you paste: memory and disk are the
+limit. Every count, chart, spike rule, topic grouping and export uses all stored items. Brand matching first keeps,
+in one vectorized pass per brand, only the items where an alias pattern occurs, and then applies the full
+alias/exclusion rules to those items. Measured on 1,000,000 stored feed items of which about 10 % name a tracked
+brand: matching 19 s, the weekly pulse 0.8 s, the pulse workbook 2 s and topic grouping of all 104,000 mentions 3 s,
+with about 0.9 GB peak memory. Running out of memory is reported plainly instead of crashing.
+
+Two display choices remain, each with a note: the *Mentions* table draws the newest 1,000 matching rows (a browser
+limit), with a CSV download of all matching mentions next to it; and charts use more than one colour only for the
+first 12 brands. The pulse workbook lists every mention of the week (past Excel's 1,048,576-row sheet limit it
+continues on a second sheet). `MAX_FEED_BYTES` (5 MB per RSS response) is a network safeguard for the collector, not
+a data limit. Streamlit's upload cap is 10,000 MB (`LISTENSIGNAL_MAX_UPLOAD_MB` in the launchers,
+`STREAMLIT_SERVER_MAX_UPLOAD_SIZE` in Docker); Listen Signal itself has no file upload.
+
+The public demo (`SIGNAL_PUBLIC=1`, set by Signal Hub's public image, or the older `LISTENSIGNAL_PUBLIC_DEMO=1`) shows
+only the fictional data, switches collection off, and caps the session brand list at 12 brands and 20,000 characters
+and the matcher test at 2,000 characters. The downloaded app has none of these limits.
+
 ## Methods
 
 - **Sentiment.** With the optional extra, `ltg/norbert3-base_sentence-sentiment` (University of Oslo, Language
@@ -210,7 +233,7 @@ You need Python 3.10 or newer.
 
 The first launch creates a private `.venv` and installs the open-source dependencies. The dashboard opens at
 `http://127.0.0.1:8595` with the fictional demo loaded; no network is needed. Set `LISTENSIGNAL_PORT` to change the
-port. Set `LISTENSIGNAL_PUBLIC_DEMO=1` for a hosted demo: the app then shows only the fictional data, and
+port, and `LISTENSIGNAL_MAX_UPLOAD_MB` to change Streamlit's upload cap (default 10000). Set `SIGNAL_PUBLIC=1` (or `LISTENSIGNAL_PUBLIC_DEMO=1`) for a hosted demo: the app then shows only the fictional data, and
 collection is switched off, so it never fetches feeds or writes a database. Set `LISTENSIGNAL_DEBUG=1` to show
 technical details for unexpected errors. Or from a terminal:
 
@@ -244,7 +267,7 @@ docker build -t listensignal .
 docker run --rm -p 8595:8595 -v ./data:/app/data listensignal
 ```
 
-Then open http://127.0.0.1:8595. The container runs as a non-root user.
+Then open http://127.0.0.1:8595. The container runs as a non-root user and sets `STREAMLIT_SERVER_MAX_UPLOAD_SIZE=10000`; add `-e SIGNAL_PUBLIC=1` only for a public demo with demo limits.
 
 ### In Signal Hub
 

@@ -61,7 +61,7 @@ Teknisk Ukeblad), with headline + snippet scored as an item (lexicon as of step 
 | **Total** | 43 | 148 | 24 | 215 |
 
 The scorers agreed on 67 % of items. NorBERT3 labelled 79 % of headlines Neutral, including clearly bad news
-such as an accident report ("Motorsyklist kritisk skadet i ulykke …"). The model was trained to judge *opinion*
+such as an accident report ("Motorsyklist kritisk skadet i ulykke …", “motorcyclist critically injured in accident”). The model was trained to judge *opinion*
 in reviews, and news reports events in neutral language, so this is expected. The lexicon labels such headlines
 Negative because of words like *ulykke* and *skadet*. Neither behaviour is "correct" for brand monitoring without a
 definition of what tone you want to track; without gold labels, no accuracy can be stated.
