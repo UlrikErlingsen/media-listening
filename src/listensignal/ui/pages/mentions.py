@@ -5,7 +5,9 @@ from __future__ import annotations
 import streamlit as st
 
 from listensignal import find_matches
+from listensignal import limits
 from listensignal.analysis import SENTIMENT_ORDER, TIMEZONE
+from listensignal.pulse import safe_csv_bytes
 from listensignal.ui import signal_theme as sig
 from listensignal.ui.common import data_banner, empty_state, k, scorer_caption, view
 
@@ -28,7 +30,8 @@ def show() -> None:
     sentiments = c2.multiselect("Sentiment", labels, default=labels, key=k("mentions_sentiment"))
     sources = sorted(v.mentions["source"].dropna().unique())
     chosen_sources = c3.multiselect("Sources", sources, default=sources, key=k("mentions_sources"))
-    query = st.text_input("Search headlines and snippets", placeholder="e.g. tilbakekall, pris, sponsor",
+    query = st.text_input("Search headlines and snippets",
+                          placeholder="Norwegian words, e.g. tilbakekall (recall), pris (price), sponsor",
                           key=k("mentions_query"))
 
     rows = v.mentions.loc[
@@ -37,14 +40,20 @@ def show() -> None:
     if query:
         text = rows["title"].fillna("") + " " + rows["summary"].fillna("")
         rows = rows.loc[text.str.contains(query, case=False, regex=False)]
-    rows = rows.head(1000).copy()
+    matching = len(rows)
+    filtered = rows
+    rows = rows.head(limits.TABLE_DISPLAY_ROWS).copy()
     by_name = {brand.name: brand for brand in v.ws.brands}
     rows["matched"] = [
         ", ".join(sorted({m.text for m in find_matches(f"{t} \n {s}", by_name[b]) if m.excluded_by is None}))
         for t, s, b in zip(rows["title"].fillna(""), rows["summary"].fillna(""), rows["brand"])
     ]
     rows["published"] = rows["published"].dt.tz_convert(TIMEZONE).dt.tz_localize(None)
-    st.caption(f"{len(rows):,} mentions shown (at most 1,000).")
+    if matching > len(rows):
+        st.caption(f"Showing the newest {len(rows):,} of {matching:,} matching mentions (the browser draws at most "
+                   f"{limits.TABLE_DISPLAY_ROWS:,} rows); the download below has all of them.")
+    else:
+        st.caption(f"{len(rows):,} mentions shown.")
     st.dataframe(
         rows[["published", "brand", "source", "title", "summary", "sentiment", "sentiment_scorer", "matched", "url"]],
         hide_index=True,
@@ -60,3 +69,12 @@ def show() -> None:
         },
     )
     st.caption(scorer_caption(rows))
+    export = filtered[["published", "brand", "source", "title", "summary", "sentiment", "sentiment_scorer", "url"]].copy()
+    export["published"] = export["published"].dt.tz_convert(TIMEZONE).dt.tz_localize(None)
+    st.download_button(
+        f"Download all {matching:,} matching mentions (CSV)",
+        safe_csv_bytes(export),
+        "listensignal-mentions.csv",
+        "text/csv",
+        key=k("mentions_download"),
+    )

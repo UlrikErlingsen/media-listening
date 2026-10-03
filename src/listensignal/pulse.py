@@ -16,7 +16,7 @@ import sys
 
 import pandas as pd
 
-from . import __version__
+from . import __version__, limits
 from .analysis import (
     SENTIMENT_ORDER,
     SpikeRule,
@@ -120,9 +120,14 @@ def build_pulse(workspace: Workspace, end: date | None = None, rule: SpikeRule =
         sources=top_sources(this_week, 10),
         rising=rising_terms(texts(this_week), texts(prev_week), remove_terms=aliases),
         daily=daily.loc[daily.index >= window.prev_start].reset_index(),
-        latest=this_week[["published", "brand", "source", "title", "sentiment", "sentiment_scorer", "url"]].head(200),
+        latest=this_week[["published", "brand", "source", "title", "sentiment", "sentiment_scorer", "url"]],
         scorers=sorted(this_week["sentiment_scorer"].dropna().astype(str).unique()),
     )
+
+
+def safe_csv_bytes(frame: pd.DataFrame) -> bytes:
+    """CSV with spreadsheet formulas neutralised, as in the workbook export."""
+    return _safe_frame(frame).to_csv(index=False).encode("utf-8")
 
 
 def pulse_xlsx(report: PulseReport) -> bytes:
@@ -151,8 +156,10 @@ def pulse_xlsx(report: PulseReport) -> bytes:
         "Daily counts": report.daily,
         "Top sources": report.sources,
         "Rising terms": report.rising,
-        "Mentions": report.latest,
     }
+    # Every mention of the week goes into the workbook; past Excel's row limit it continues on further sheets.
+    for part, start in enumerate(range(0, max(len(report.latest), 1), limits.EXCEL_SHEET_ROWS)):
+        sheets["Mentions" if part == 0 else f"Mentions {part + 1}"] = report.latest.iloc[start : start + limits.EXCEL_SHEET_ROWS]
     buffer = BytesIO()
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
         for name, frame in sheets.items():

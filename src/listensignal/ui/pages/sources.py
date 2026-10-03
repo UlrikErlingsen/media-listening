@@ -10,6 +10,7 @@ import streamlit as st
 from listensignal import DataProblem, brands_to_yaml, find_matches, load_sources, norbert_available, parse_brands_yaml
 from listensignal.config import DEFAULT_BRANDS, DEFAULT_SOURCES, SEED_SOURCES
 from listensignal.sentiment import LEXICON_NAME
+from listensignal import limits
 from listensignal.ui import signal_theme as sig
 from listensignal.ui.common import (
     BRAND_PALETTE,
@@ -66,9 +67,12 @@ def show() -> None:
         c1, c2, c3 = st.columns(3)
         if c1.button("Apply for this session", type="primary", width="stretch", key=k("brands_apply")):
             try:
+                if limits.exceeds(len(text), limits.max_brand_yaml_chars()):
+                    raise DataProblem(limits.demo_message(
+                        f"The brand list is limited to {limits.DEMO_MAX_BRAND_YAML_CHARS:,} characters here."))
                 brands = parse_brands_yaml(text)
-                if len(brands) > 12:
-                    raise DataProblem("Use at most 12 brands so charts stay readable.")
+                if limits.exceeds(len(brands), limits.max_brands()):
+                    raise DataProblem(limits.demo_message(f"Use at most {limits.DEMO_MAX_BRANDS} brands here."))
                 st.session_state[key] = brands_to_yaml(brands)
                 st.rerun()
             except DataProblem as exc:
@@ -83,11 +87,14 @@ def show() -> None:
 
     st.markdown("#### Test the matcher")
     sample = st.text_area(
-        "Paste a Norwegian headline",
+        "Paste a Norwegian headline (the matcher is built for Norwegian text)",
         value="Kystkraft-sjefen jubler, men nordlyset stjal showet for Nordlys Energis lansering i Tromsø",
         height=80,
         key=k("matcher_sample"),
     )
+    if limits.exceeds(len(sample), limits.max_sample_chars()):
+        st.warning(limits.demo_message(f"Only the first {limits.DEMO_MAX_SAMPLE_CHARS:,} characters are tested here."))
+        sample = sample[: limits.DEMO_MAX_SAMPLE_CHARS]
     rows = []
     for brand in ws.brands:
         for match in find_matches(sample, brand):

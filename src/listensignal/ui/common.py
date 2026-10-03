@@ -28,6 +28,7 @@ from listensignal import (
 )
 from listensignal.analysis import SENTIMENT_ORDER
 from listensignal.config import DEFAULT_BRANDS, DEFAULT_DB
+from listensignal import limits
 from listensignal.ui import signal_theme as sig
 
 NS = "listen"  # signal_theme key and Signal Hub slug: Listen Signal, Market family
@@ -58,8 +59,8 @@ def hub_mode() -> bool:
 
 
 def public_demo() -> bool:
-    """Hosted demo (LISTENSIGNAL_PUBLIC_DEMO=1): only the fictional data, no database and no feed requests."""
-    return os.getenv("LISTENSIGNAL_PUBLIC_DEMO") == "1"
+    """Public demo (SIGNAL_PUBLIC=1, or LISTENSIGNAL_PUBLIC_DEMO=1): fictional data only, no database, no feeds."""
+    return limits.is_public()
 
 
 def demo_only() -> bool:
