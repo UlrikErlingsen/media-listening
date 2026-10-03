@@ -25,5 +25,6 @@ set ARROW_DEFAULT_MEMORY_POOL=system
 echo Starting Listen Signal at http://127.0.0.1:%LISTENSIGNAL_PORT% ...
 echo The fictional demo is loaded; no network is needed to explore it.
 if not "%LISTENSIGNAL_NO_BROWSER%"=="1" start "" /b cmd /c "timeout /t 4 /nobreak >nul & start http://127.0.0.1:%LISTENSIGNAL_PORT%"
-".venv\Scripts\python.exe" -m streamlit run app.py --server.headless=true --server.address=127.0.0.1 --server.port=%LISTENSIGNAL_PORT% --server.maxUploadSize=10 --server.fileWatcherType=none --browser.gatherUsageStats=false
+if "%LISTENSIGNAL_MAX_UPLOAD_MB%"=="" set LISTENSIGNAL_MAX_UPLOAD_MB=10000
+".venv\Scripts\python.exe" -m streamlit run app.py --server.headless=true --server.address=127.0.0.1 --server.port=%LISTENSIGNAL_PORT% --server.maxUploadSize=%LISTENSIGNAL_MAX_UPLOAD_MB% --server.fileWatcherType=none --browser.gatherUsageStats=false
 if errorlevel 1 pause
