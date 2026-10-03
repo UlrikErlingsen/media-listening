@@ -97,7 +97,18 @@ def match_articles(articles: pd.DataFrame, brands: tuple[Brand, ...] | list[Bran
     if articles.empty:
         return pd.DataFrame(columns=["article_id", "brand"])
     texts = articles["title"].fillna("").astype(str) + " \n " + articles["summary"].fillna("").astype(str)
-    for article_id, text in zip(articles["article_id"], texts):
+    # Large corpora: one vectorized pass per brand keeps only items where some alias pattern occurs at all. The
+    # prefilter uses the very patterns find_matches uses, on the same normalized text, so no match is lost.
+    normalized = texts.str.translate(_TRANSLATE)
+    candidate = pd.Series(False, index=texts.index)
+    for brand in brands:
+        if not brand.aliases:
+            continue
+        union = "|".join(_compile(alias, brand.case_sensitive, brand.inflect).pattern for alias in brand.aliases)
+        flags = 0 if brand.case_sensitive else re.IGNORECASE
+        candidate |= normalized.str.contains(union, flags=flags, regex=True)
+    keep = candidate.to_numpy()
+    for article_id, text in zip(articles["article_id"].to_numpy()[keep], texts.to_numpy()[keep]):
         for name in match_brands(text, brands):
             rows.append((article_id, name))
     return pd.DataFrame(rows, columns=["article_id", "brand"])
