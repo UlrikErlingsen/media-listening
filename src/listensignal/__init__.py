@@ -17,7 +17,7 @@ Public API (the Streamlit app and any future Signal Hub use only these names):
 The package never imports Streamlit.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 USER_AGENT = (
     f"ListenSignal/{__version__} (+https://github.com/UlrikErlingsen/media-listening; "

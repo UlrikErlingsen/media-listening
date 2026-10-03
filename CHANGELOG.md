@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.1.0] - 2026-10-03
+
+Larger datasets and English app text. Matching rules, sentiment, spike detection and topics give the same results.
+
+### Larger datasets
+
+- Larger datasets: run locally, Listen Signal has no built-in limit on stored items, tracked brands or pasted text; memory and disk are the limit. The session brand list is no longer capped at 12 brands locally (charts still say when brands share a colour). A running-out-of-memory error becomes a plain message.
+- Public demo limits: `SIGNAL_PUBLIC=1` (Signal Hub's public image) now switches on the public demo, like the existing `LISTENSIGNAL_PUBLIC_DEMO=1`: fictional data only, no collection, at most 12 brands and 20,000 characters in the session brand list, and 2,000 characters in the matcher test. All caps live in the new `listensignal.limits`; each message says it is a demo limit that the downloaded app does not have.
+- Faster matching on big databases: one vectorized pass per brand keeps only items where an alias pattern occurs before the full alias/exclusion rules run. On 1,000,000 stored items (about 10 % naming a brand) matching takes 19 s, the weekly pulse 0.8 s, its workbook 2 s and topic grouping 3 s, with about 0.9 GB peak memory.
+- Exports use all the data: the pulse workbook's *Mentions* sheet lists every mention of the week instead of the newest 200 (continuing on a second sheet past Excel's row limit), and the *Mentions* page, which draws the newest 1,000 rows, offers a CSV download of all matching mentions and says how many it shows.
+- Streamlit's upload cap is 10,000 MB: `.streamlit/config.toml`, `run_app.bat` and `run_app.command` (`LISTENSIGNAL_MAX_UPLOAD_MB`, default 10000, replacing the fixed 10 MB), and the Dockerfile (`STREAMLIT_SERVER_MAX_UPLOAD_SIZE=10000`). `MAX_FEED_BYTES` stays: it guards a single RSS response.
+
+### All app text is in English
+
+- All app text is in English (it already was): the demo notice now says the demo headlines are Norwegian because Listen Signal analyses Norwegian-language media, the matcher's input label says it is built for Norwegian text, and Norwegian example search words carry English glosses. The demo corpus and the Norwegian sentiment lexicon are unchanged.
+
+### Suite
+
+- Suite: Rival, Reach, Learn and Blueprint Signal added to the suite table (README and the shared theme).
+
 ## [1.0.0] - 2026-10-02
 
 First public release of **Listen Signal**, built from the v1 brief.

@@ -5,8 +5,8 @@ type: software
 authors:
   - family-names: Erlingsen
     given-names: Ulrik
-version: 1.0.0
-date-released: 2026-10-02
+version: 1.1.0
+date-released: 2026-10-03
 license: AGPL-3.0-or-later
 repository-code: "https://github.com/UlrikErlingsen/media-listening"
 abstract: "An open, local-first application that counts brand and competitor mentions in Norwegian RSS/Atom feeds, with Bokmål/Nynorsk alias matching, local sentence-level sentiment (NorBERT3 or a lexicon fallback), share of voice, z-score spike flags, topic groups and a weekly brand pulse export."
