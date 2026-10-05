@@ -46,7 +46,7 @@ ui = [
 ]
 sentiment = [
   "torch>=2.1",
-  "transformers>=4.36,<5",
+  "transformers>=4.36,<6",
 ]
 test = [
   "plotly>=5.19,<8",
